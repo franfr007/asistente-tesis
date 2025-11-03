@@ -21,6 +21,7 @@
                 <nav class="nav-tabs">
                     <button class="tab-btn active" data-tab="inicio">Inicio</button>
                     <button class="tab-btn" data-tab="orientacion">Orientación</button>
+                    <button class="tab-btn" data-tab="proyecto">Proyecto de Tesis</button>
                     <button class="tab-btn" data-tab="estructura">Estructura</button>
                     <button class="tab-btn" data-tab="generador">Generador IA</button>
                     <button class="tab-btn" data-tab="revisor">Revisor</button>
@@ -134,6 +135,293 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Proyecto de Tesis -->
+            <div id="proyecto" class="tab-content">
+                <h2>Proyecto de Tesis - Parcial</h2>
+                
+                <div class="project-intro">
+                    <p class="intro-text">Esta sección te ayuda a elaborar tu proyecto de tesis que debés entregar como parcial del seminario. Completá cada sección con cuidado y detalle. Podés guardar tu progreso y generar un documento final en formato APA.</p>
+                    
+                    <div class="project-actions-top">
+                        <button id="loadDraft" class="btn btn-secondary">📂 Cargar Borrador</button>
+                        <button id="saveDraft" class="btn btn-secondary">💾 Guardar Borrador</button>
+                        <button id="clearProject" class="btn btn-secondary">🗑️ Limpiar Todo</button>
+                        <button id="generateDocument" class="btn btn-primary">📄 Generar Documento Final</button>
+                    </div>
+                </div>
+
+                <div class="project-form">
+                    <!-- Sección 1: Datos del Estudiante -->
+                    <div class="project-section">
+                        <div class="section-header">
+                            <span class="section-number">1</span>
+                            <h3>Datos del Estudiante</h3>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-field">
+                                <label for="studentName">Nombre completo *</label>
+                                <input type="text" id="studentName" class="form-input" placeholder="Nombre y apellido">
+                            </div>
+                            <div class="form-field">
+                                <label for="studentEmail">Email</label>
+                                <input type="email" id="studentEmail" class="form-input" placeholder="correo@ejemplo.com">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección 2: Título Tentativo -->
+                    <div class="project-section">
+                        <div class="section-header">
+                            <span class="section-number">2</span>
+                            <h3>Título Tentativo de la Tesis</h3>
+                            <button class="help-btn" data-help="titulo">❓</button>
+                        </div>
+                        <div class="form-field">
+                            <label for="thesisTitle">Título (puede modificarse posteriormente) *</label>
+                            <input type="text" id="thesisTitle" class="form-input" placeholder="Ejemplo: La noción de libertad en la filosofía existencialista de Jean-Paul Sartre">
+                            <button id="aiTitleSuggestion" class="ai-assist-btn">✨ Sugerir títulos con IA</button>
+                        </div>
+                        <div class="form-field">
+                            <label for="thesisSubtitle">Subtítulo (opcional)</label>
+                            <input type="text" id="thesisSubtitle" class="form-input" placeholder="Un análisis desde El ser y la nada">
+                        </div>
+                    </div>
+
+                    <!-- Sección 3: Área Temática -->
+                    <div class="project-section">
+                        <div class="section-header">
+                            <span class="section-number">3</span>
+                            <h3>Área Temática y Disciplinar</h3>
+                            <button class="help-btn" data-help="area">❓</button>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-field">
+                                <label for="thematicArea">Área de la filosofía *</label>
+                                <select id="thematicArea" class="form-select">
+                                    <option value="">-- Seleccioná una opción --</option>
+                                    <option value="metafisica">Metafísica</option>
+                                    <option value="epistemologia">Epistemología</option>
+                                    <option value="etica">Ética</option>
+                                    <option value="filosofia-politica">Filosofía Política</option>
+                                    <option value="estetica">Estética</option>
+                                    <option value="logica">Lógica</option>
+                                    <option value="filosofia-lenguaje">Filosofía del Lenguaje</option>
+                                    <option value="filosofia-mente">Filosofía de la Mente</option>
+                                    <option value="filosofia-ciencia">Filosofía de la Ciencia</option>
+                                    <option value="filosofia-religion">Filosofía de la Religión</option>
+                                    <option value="antropologia-filosofica">Antropología Filosófica</option>
+                                    <option value="historia-filosofia">Historia de la Filosofía</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="form-field">
+                                <label for="philosophicalTradition">Tradición filosófica principal</label>
+                                <select id="philosophicalTradition" class="form-select">
+                                    <option value="">-- Seleccioná una opción --</option>
+                                    <option value="antigua">Filosofía Antigua</option>
+                                    <option value="medieval">Filosofía Medieval</option>
+                                    <option value="moderna">Filosofía Moderna</option>
+                                    <option value="contemporanea">Filosofía Contemporánea</option>
+                                    <option value="analitica">Filosofía Analítica</option>
+                                    <option value="continental">Filosofía Continental</option>
+                                    <option value="latinoamericana">Filosofía Latinoamericana</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección 4: Planteo del Problema -->
+                    <div class="project-section">
+                        <div class="section-header">
+                            <span class="section-number">4</span>
+                            <h3>Planteo del Problema</h3>
+                            <button class="help-btn" data-help="problema">❓</button>
+                        </div>
+                        <div class="form-field">
+                            <label for="problemStatement">Descripción del problema filosófico * (300-500 palabras)</label>
+                            <textarea id="problemStatement" class="form-textarea" rows="10" 
+                                placeholder="Explicá cuál es el problema filosófico que querés investigar. ¿Qué cuestión filosófica específica te interesa abordar? ¿Por qué es relevante este problema?"></textarea>
+                            <div class="char-counter">
+                                <span id="problemCount">0</span> palabras
+                            </div>
+                            <button id="aiProblemHelp" class="ai-assist-btn">✨ Ayuda para desarrollar el problema</button>
+                        </div>
+                        <div class="form-field">
+                            <label for="researchQuestion">Pregunta de investigación principal *</label>
+                            <input type="text" id="researchQuestion" class="form-input" 
+                                placeholder="Ejemplo: ¿Cómo concibe Sartre la relación entre libertad y responsabilidad en El ser y la nada?">
+                        </div>
+                        <div class="form-field">
+                            <label for="secondaryQuestions">Preguntas secundarias (opcional)</label>
+                            <textarea id="secondaryQuestions" class="form-textarea" rows="4" 
+                                placeholder="Listá 2-3 preguntas secundarias que se derivan de la pregunta principal"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Sección 5: Justificación -->
+                    <div class="project-section">
+                        <div class="section-header">
+                            <span class="section-number">5</span>
+                            <h3>Justificación</h3>
+                            <button class="help-btn" data-help="justificacion">❓</button>
+                        </div>
+                        <div class="form-field">
+                            <label for="justification">¿Por qué es importante investigar este tema? * (200-400 palabras)</label>
+                            <textarea id="justification" class="form-textarea" rows="8" 
+                                placeholder="Explicá la relevancia teórica y/o práctica de tu investigación. ¿Qué aporte harías al debate filosófico? ¿Qué lagunas en el conocimiento existente abordás?"></textarea>
+                            <div class="char-counter">
+                                <span id="justificationCount">0</span> palabras
+                            </div>
+                            <button id="aiJustificationHelp" class="ai-assist-btn">✨ Ayuda para desarrollar la justificación</button>
+                        </div>
+                    </div>
+
+                    <!-- Sección 6: Objetivos -->
+                    <div class="project-section">
+                        <div class="section-header">
+                            <span class="section-number">6</span>
+                            <h3>Objetivos de la Investigación</h3>
+                            <button class="help-btn" data-help="objetivos">❓</button>
+                        </div>
+                        <div class="form-field">
+                            <label for="generalObjective">Objetivo general * (un solo objetivo)</label>
+                            <textarea id="generalObjective" class="form-textarea" rows="3" 
+                                placeholder="Ejemplo: Analizar la concepción de libertad en la filosofía de Sartre y su relación con la responsabilidad moral"></textarea>
+                            <button id="aiObjectiveHelp" class="ai-assist-btn">✨ Sugerir objetivo general</button>
+                        </div>
+                        <div class="form-field">
+                            <label for="specificObjectives">Objetivos específicos * (3-5 objetivos)</label>
+                            <textarea id="specificObjectives" class="form-textarea" rows="6" 
+                                placeholder="Ejemplo:
+1. Examinar el concepto de libertad en El ser y la nada
+2. Identificar las características fundamentales de la libertad sartreana
+3. Analizar la relación entre libertad y facticidad
+4. Evaluar las implicaciones éticas de la libertad radical"></textarea>
+                            <button id="aiSpecificObjectivesHelp" class="ai-assist-btn">✨ Sugerir objetivos específicos</button>
+                        </div>
+                    </div>
+
+                    <!-- Sección 7: Marco Teórico Preliminar -->
+                    <div class="project-section">
+                        <div class="section-header">
+                            <span class="section-number">7</span>
+                            <h3>Marco Teórico Preliminar</h3>
+                            <button class="help-btn" data-help="marco">❓</button>
+                        </div>
+                        <div class="form-field">
+                            <label for="mainAuthors">Autores principales a trabajar *</label>
+                            <textarea id="mainAuthors" class="form-textarea" rows="4" 
+                                placeholder="Listá los autores principales que vas a analizar, con una breve justificación de su relevancia"></textarea>
+                        </div>
+                        <div class="form-field">
+                            <label for="keyConcepts">Conceptos filosóficos clave *</label>
+                            <textarea id="keyConcepts" class="form-textarea" rows="4" 
+                                placeholder="Enumerá los conceptos filosóficos fundamentales que vas a trabajar (ej: libertad, angustia, mala fe, facticidad, proyecto)"></textarea>
+                        </div>
+                        <div class="form-field">
+                            <label for="theoreticalBackground">Antecedentes teóricos (200-300 palabras)</label>
+                            <textarea id="theoreticalBackground" class="form-textarea" rows="6" 
+                                placeholder="Breve descripción del estado actual del debate sobre tu tema. ¿Qué se ha dicho? ¿Qué discusiones existen?"></textarea>
+                            <div class="char-counter">
+                                <span id="backgroundCount">0</span> palabras
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección 8: Metodología -->
+                    <div class="project-section">
+                        <div class="section-header">
+                            <span class="section-number">8</span>
+                            <h3>Metodología</h3>
+                            <button class="help-btn" data-help="metodologia">❓</button>
+                        </div>
+                        <div class="form-field">
+                            <label for="methodology">Metodología de investigación * (200-300 palabras)</label>
+                            <textarea id="methodology" class="form-textarea" rows="6" 
+                                placeholder="¿Cómo vas a abordar tu investigación? ¿Qué método filosófico usarás? (análisis conceptual, hermenéutica, método histórico-crítico, etc.)"></textarea>
+                            <div class="char-counter">
+                                <span id="methodologyCount">0</span> palabras
+                            </div>
+                        </div>
+                        <div class="form-field">
+                            <label for="primarySources">Fuentes primarias principales *</label>
+                            <textarea id="primarySources" class="form-textarea" rows="4" 
+                                placeholder="Listá las obras principales que vas a analizar directamente"></textarea>
+                        </div>
+                        <div class="form-field">
+                            <label for="secondarySources">Fuentes secundarias (bibliografía preliminar)</label>
+                            <textarea id="secondarySources" class="form-textarea" rows="6" 
+                                placeholder="Bibliografía secundaria relevante (comentadores, estudios críticos, etc.)"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Sección 9: Estructura Tentativa -->
+                    <div class="project-section">
+                        <div class="section-header">
+                            <span class="section-number">9</span>
+                            <h3>Estructura Tentativa de la Tesis</h3>
+                            <button class="help-btn" data-help="estructura">❓</button>
+                        </div>
+                        <div class="form-field">
+                            <label for="thesisStructure">Índice tentativo con capítulos y secciones *</label>
+                            <textarea id="thesisStructure" class="form-textarea" rows="12" 
+                                placeholder="Ejemplo:
+
+Introducción
+1. El concepto de libertad en la tradición filosófica
+   1.1. Antecedentes históricos
+   1.2. La libertad en el existencialismo
+2. La libertad radical en Sartre
+   2.1. El ser-para-sí y la nada
+   2.2. Libertad y facticidad
+3. Libertad y responsabilidad
+   3.1. La angustia y la mala fe
+   3.2. Implicaciones éticas
+Conclusiones"></textarea>
+                            <button id="aiStructureHelp" class="ai-assist-btn">✨ Sugerir estructura</button>
+                        </div>
+                    </div>
+
+                    <!-- Sección 10: Cronograma -->
+                    <div class="project-section">
+                        <div class="section-header">
+                            <span class="section-number">10</span>
+                            <h3>Cronograma de Trabajo</h3>
+                            <button class="help-btn" data-help="cronograma">❓</button>
+                        </div>
+                        <div class="form-field">
+                            <label for="timeline">Plan de trabajo estimado</label>
+                            <textarea id="timeline" class="form-textarea" rows="8" 
+                                placeholder="Ejemplo:
+
+Mes 1-2: Lectura y análisis de fuentes primarias
+Mes 3-4: Revisión bibliográfica y marco teórico
+Mes 5-6: Redacción del capítulo 1
+Mes 7-8: Redacción del capítulo 2
+Mes 9-10: Redacción del capítulo 3
+Mes 11: Conclusiones y revisión general
+Mes 12: Correcciones finales"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción finales -->
+                    <div class="project-actions-bottom">
+                        <button id="validateProject" class="btn btn-secondary">✓ Validar Proyecto</button>
+                        <button id="saveDraftBottom" class="btn btn-secondary">💾 Guardar Borrador</button>
+                        <button id="generateDocumentBottom" class="btn btn-primary">📄 Generar Documento Final</button>
+                    </div>
+                </div>
+
+                <!-- Panel de ayuda contextual -->
+                <div id="helpPanel" class="help-panel" style="display:none;">
+                    <div class="help-content">
+                        <button class="close-help">✕</button>
+                        <h3 id="helpTitle"></h3>
+                        <div id="helpText"></div>
                     </div>
                 </div>
             </div>
