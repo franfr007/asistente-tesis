@@ -413,6 +413,57 @@ Mes 12: Correcciones finales"></textarea>
                         </div>
                     </div>
 
+                    <!-- Sección 11: Bibliografía -->
+                    <div class="project-section">
+                        <div class="section-header">
+                            <span class="section-number">11</span>
+                            <h3>Bibliografía Preliminar</h3>
+                            <button class="help-btn" data-help="bibliografia">❓</button>
+                        </div>
+                        <div class="bibliography-notice">
+                            <p><strong>Importante:</strong> Incluí al menos 15 referencias bibliográficas en formato APA (7ª edición). Dividí entre fuentes primarias y secundarias.</p>
+                        </div>
+                        <div class="form-field">
+                            <label for="primaryBibliography">Fuentes Primarias (obras originales a analizar) *</label>
+                            <textarea id="primaryBibliography" class="form-textarea" rows="8" 
+                                placeholder="Ejemplo en formato APA:
+
+Sartre, J.-P. (2009). El ser y la nada (J. Valmar, Trad.). Losada. (Obra original publicada en 1943)
+
+Kant, I. (2009). Crítica de la razón pura (M. Caimi, Trad.). Colihue. (Obra original publicada en 1781)"></textarea>
+                            <div class="ref-counter">
+                                Referencias primarias: <span id="primaryRefCount">0</span>
+                            </div>
+                            <button id="aiPrimaryBibHelp" class="ai-assist-btn">✨ Sugerir fuentes primarias</button>
+                        </div>
+                        <div class="form-field">
+                            <label for="secondaryBibliography">Fuentes Secundarias (comentadores, estudios críticos) *</label>
+                            <textarea id="secondaryBibliography" class="form-textarea" rows="12" 
+                                placeholder="Ejemplo en formato APA:
+
+Anderson, T. C. (1993). Sartre's two ethics: From authenticity to integral humanity. Open Court.
+
+Catalano, J. S. (1996). Good faith and other essays: Perspectives on a Sartrean ethics. Rowman & Littlefield.
+
+García, E. (2018). Libertad y angustia en el existencialismo de Sartre. Revista de Filosofía, 45(2), 112-134. https://doi.org/10.1234/rf.2018.45.2.112"></textarea>
+                            <div class="ref-counter">
+                                Referencias secundarias: <span id="secondaryRefCount">0</span>
+                            </div>
+                            <button id="aiSecondaryBibHelp" class="ai-assist-btn">✨ Sugerir fuentes secundarias</button>
+                        </div>
+                        <div class="bibliography-stats">
+                            <div class="stat-box">
+                                <span class="stat-number" id="totalRefs">0</span>
+                                <span class="stat-label">Total de referencias</span>
+                            </div>
+                            <div class="stat-box" id="minRefsBox">
+                                <span class="stat-number">15</span>
+                                <span class="stat-label">Mínimo requerido</span>
+                            </div>
+                        </div>
+                        <button id="validateBibliography" class="btn btn-secondary">✓ Validar Bibliografía</button>
+                    </div>
+
                     <!-- Botones de acción finales -->
                     <div class="project-actions-bottom">
                         <button id="validateProject" class="btn btn-secondary">✓ Validar Proyecto</button>

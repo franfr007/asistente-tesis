@@ -621,6 +621,58 @@ function setupWordCounters() {
             });
         }
     });
+    
+    // Contadores de referencias bibliográficas
+    setupBibliographyCounters();
+}
+
+function setupBibliographyCounters() {
+    const primaryBib = document.getElementById('primaryBibliography');
+    const secondaryBib = document.getElementById('secondaryBibliography');
+    
+    if (primaryBib && secondaryBib) {
+        primaryBib.addEventListener('input', updateBibliographyCount);
+        secondaryBib.addEventListener('input', updateBibliographyCount);
+        
+        // Botón de validación
+        document.getElementById('validateBibliography').addEventListener('click', validateBibliography);
+    }
+}
+
+function updateBibliographyCount() {
+    const primaryText = document.getElementById('primaryBibliography').value;
+    const secondaryText = document.getElementById('secondaryBibliography').value;
+    
+    const primaryCount = countReferences(primaryText);
+    const secondaryCount = countReferences(secondaryText);
+    const totalCount = primaryCount + secondaryCount;
+    
+    document.getElementById('primaryRefCount').textContent = primaryCount;
+    document.getElementById('secondaryRefCount').textContent = secondaryCount;
+    document.getElementById('totalRefs').textContent = totalCount;
+    
+    // Actualizar estilo si cumple el mínimo
+    const minRefsBox = document.getElementById('minRefsBox');
+    const statBoxes = document.querySelectorAll('.stat-box');
+    
+    if (totalCount >= 15) {
+        statBoxes.forEach(box => box.classList.add('complete'));
+    } else {
+        statBoxes.forEach(box => box.classList.remove('complete'));
+    }
+}
+
+function countReferences(text) {
+    if (!text.trim()) return 0;
+    
+    // Contar líneas no vacías que parecen referencias
+    const lines = text.split('\n').filter(line => {
+        const trimmed = line.trim();
+        // Una referencia típicamente tiene al menos un punto y paréntesis o tiene cierta longitud
+        return trimmed.length > 20 && (trimmed.includes('.') || trimmed.includes('('));
+    });
+    
+    return lines.length;
 }
 
 function countWords(text) {
@@ -749,6 +801,21 @@ function setupHelpButtons() {
                 </ul>
                 <p><strong>Realista:</strong> Considerá tus otras obligaciones.</p>
             `
+        },
+        bibliografia: {
+            title: 'Bibliografía',
+            text: `
+                <p><strong>Requisitos:</strong></p>
+                <ul>
+                    <li>Mínimo 15 referencias en total</li>
+                    <li>Formato APA 7ª edición</li>
+                    <li>Dividir entre primarias y secundarias</li>
+                </ul>
+                <p><strong>Fuentes Primarias:</strong> Obras originales de los autores que vas a estudiar.</p>
+                <p><strong>Fuentes Secundarias:</strong> Comentarios, estudios críticos, análisis de otros académicos.</p>
+                <p><strong>Orden alfabético:</strong> Por apellido del primer autor.</p>
+                <p><strong>Tip:</strong> Usá gestores bibliográficos como Zotero para facilitar el formato.</p>
+            `
         }
     };
     
@@ -841,7 +908,9 @@ function collectProjectData() {
         primarySources: document.getElementById('primarySources').value,
         secondarySources: document.getElementById('secondarySources').value,
         thesisStructure: document.getElementById('thesisStructure').value,
-        timeline: document.getElementById('timeline').value
+        timeline: document.getElementById('timeline').value,
+        primaryBibliography: document.getElementById('primaryBibliography').value,
+        secondaryBibliography: document.getElementById('secondaryBibliography').value
     };
 }
 
@@ -870,7 +939,9 @@ function validateProject() {
         { id: 'keyConcepts', label: 'Conceptos clave' },
         { id: 'methodology', label: 'Metodología' },
         { id: 'primarySources', label: 'Fuentes primarias' },
-        { id: 'thesisStructure', label: 'Estructura tentativa' }
+        { id: 'thesisStructure', label: 'Estructura tentativa' },
+        { id: 'primaryBibliography', label: 'Bibliografía primaria' },
+        { id: 'secondaryBibliography', label: 'Bibliografía secundaria' }
     ];
     
     const missing = [];
@@ -895,6 +966,15 @@ function validateProject() {
         warnings.push(`Justificación muy corta (${justificationWords} palabras, recomendado: 200-400)`);
     }
     
+    // Verificar bibliografía
+    const primaryRefs = countReferences(document.getElementById('primaryBibliography').value);
+    const secondaryRefs = countReferences(document.getElementById('secondaryBibliography').value);
+    const totalRefs = primaryRefs + secondaryRefs;
+    
+    if (totalRefs < 15) {
+        warnings.push(`Bibliografía insuficiente (${totalRefs} referencias, mínimo: 15)`);
+    }
+    
     // Mostrar resultados
     if (missing.length > 0) {
         alert('❌ Faltan completar los siguientes campos obligatorios:\n\n' + missing.join('\n'));
@@ -904,10 +984,39 @@ function validateProject() {
     if (warnings.length > 0) {
         alert('⚠️ Advertencias:\n\n' + warnings.join('\n') + '\n\nPodés continuar, pero considerá mejorar estos aspectos.');
     } else {
-        alert('✓ ¡Proyecto validado exitosamente! Todos los campos están completos.');
+        alert('✓ ¡Proyecto validado exitosamente! Todos los campos están completos y cumplen los requisitos mínimos.');
     }
     
     return true;
+}
+
+// Validar bibliografía específicamente
+function validateBibliography() {
+    const primaryRefs = countReferences(document.getElementById('primaryBibliography').value);
+    const secondaryRefs = countReferences(document.getElementById('secondaryBibliography').value);
+    const totalRefs = primaryRefs + secondaryRefs;
+    
+    let message = `📚 Análisis de Bibliografía:\n\n`;
+    message += `• Fuentes primarias: ${primaryRefs}\n`;
+    message += `• Fuentes secundarias: ${secondaryRefs}\n`;
+    message += `• Total: ${totalRefs} referencias\n\n`;
+    
+    if (totalRefs >= 15) {
+        message += `✓ Cumple con el mínimo de 15 referencias.\n\n`;
+        
+        if (primaryRefs < 2) {
+            message += `⚠️ Considerá agregar más fuentes primarias (obras originales).`;
+        } else if (secondaryRefs < 5) {
+            message += `⚠️ Considerá agregar más fuentes secundarias (comentadores, estudios).`;
+        } else {
+            message += `¡Excelente distribución entre fuentes primarias y secundarias!`;
+        }
+    } else {
+        message += `❌ No cumple con el mínimo. Faltan ${15 - totalRefs} referencias.\n\n`;
+        message += `Recomendación: Agregá más fuentes secundarias (comentadores, artículos de revista, estudios críticos).`;
+    }
+    
+    alert(message);
 }
 
 // Generar documento del proyecto
@@ -1015,6 +1124,16 @@ ${data.timeline || 'No especificado'}
 
 ═══════════════════════════════════════════════════════════════
 
+BIBLIOGRAFÍA PRELIMINAR
+
+Fuentes Primarias:
+${data.primaryBibliography || 'No especificado'}
+
+Fuentes Secundarias:
+${data.secondaryBibliography || 'No especificado'}
+
+═══════════════════════════════════════════════════════════════
+
 Fecha de generación: ${new Date().toLocaleDateString('es-AR', { 
     year: 'numeric', 
     month: 'long', 
@@ -1049,6 +1168,8 @@ function setupAIAssistButtons() {
     document.getElementById('aiMethodologyHelp').addEventListener('click', () => aiAssist('methodology'));
     document.getElementById('aiStructureHelp').addEventListener('click', () => aiAssist('structure'));
     document.getElementById('aiTimelineHelp').addEventListener('click', () => aiAssist('timeline'));
+    document.getElementById('aiPrimaryBibHelp').addEventListener('click', () => aiAssist('primaryBib'));
+    document.getElementById('aiSecondaryBibHelp').addEventListener('click', () => aiAssist('secondaryBib'));
 }
 
 // Asistencia IA para el proyecto
@@ -1205,6 +1326,35 @@ ${data.thesisStructure}
 
 Distribuí el tiempo considerando: lectura de fuentes, escritura de capítulos, revisiones y correcciones finales.`;
             targetField = 'timeline';
+            break;
+            
+        case 'primaryBib':
+            if (!data.mainAuthors && !data.thesisTitle) {
+                alert('Por favor, completá primero el título o los autores principales.');
+                return;
+            }
+            prompt = `Sugerí 5-8 fuentes primarias (obras originales) en formato APA para una tesis sobre:
+
+Título: ${data.thesisTitle || 'No especificado'}
+Autores principales: ${data.mainAuthors || 'No especificado'}
+
+Incluí las obras más importantes y relevantes. Formato APA 7ª edición. NO uses asteriscos ni marcas de formato, solo texto limpio.`;
+            targetField = 'primaryBibliography';
+            break;
+            
+        case 'secondaryBib':
+            if (!data.mainAuthors && !data.thesisTitle) {
+                alert('Por favor, completá primero el título o los autores principales.');
+                return;
+            }
+            prompt = `Sugerí 10-12 fuentes secundarias (comentadores, estudios críticos, artículos académicos) en formato APA para una tesis sobre:
+
+Título: ${data.thesisTitle || 'No especificado'}
+Autores principales: ${data.mainAuthors || 'No especificado'}
+Área: ${data.thematicArea || 'No especificado'}
+
+Incluí libros de comentadores reconocidos y artículos de revistas académicas. Formato APA 7ª edición. NO uses asteriscos ni marcas de formato, solo texto limpio.`;
+            targetField = 'secondaryBibliography';
             break;
     }
     

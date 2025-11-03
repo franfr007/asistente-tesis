@@ -1059,6 +1059,80 @@ body {
     margin-bottom: 0.3rem;
 }
 
+/* Bibliography Section Styles */
+.bibliography-notice {
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    padding: 1rem 1.5rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+}
+
+.bibliography-notice p {
+    margin: 0;
+    color: #92400e;
+    font-weight: 500;
+}
+
+.ref-counter {
+    text-align: right;
+    font-size: 0.95rem;
+    color: var(--text-light);
+    margin-top: 0.5rem;
+    font-weight: 600;
+}
+
+.ref-counter span {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.bibliography-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.stat-box {
+    background: linear-gradient(135deg, var(--light-blue) 0%, #e0e7ff 100%);
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    border: 2px solid var(--secondary-color);
+    transition: all 0.3s ease;
+}
+
+.stat-box:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+}
+
+.stat-box.complete {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border-color: #059669;
+}
+
+.stat-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.stat-box.complete .stat-number {
+    color: #059669;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-light);
+    font-weight: 600;
+}
+
 /* Responsive Project Section */
 @media (max-width: 768px) {
     .help-panel {
