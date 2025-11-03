@@ -529,35 +529,46 @@ async function callGeminiAPI(systemPrompt, conversationHistory) {
     }
 }
 
-// Función para formatear mensajes (convertir markdown básico a HTML)
+// Función para formatear mensajes (convertir markdown a HTML)
 function formatMessage(text) {
-    // Convertir saltos de línea
-    let formatted = text.replace(/\n\n/g, '</p><p>');
-    formatted = '<p>' + formatted + '</p>';
-    
-    // Convertir negritas
-    formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    // Convertir negritas (debe ir antes que cursivas)
+    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/__(.+?)__/g, '<strong>$1</strong>');
     
     // Convertir cursivas
-    formatted = formatted.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    text = text.replace(/\*([^*]+?)\*/g, '<em>$1</em>');
+    text = text.replace(/_([^_]+?)_/g, '<em>$1</em>');
     
-    // Convertir listas
-    formatted = formatted.replace(/<p>[-•]\s*(.+?)<\/p>/g, '<li>$1</li>');
+    // Convertir saltos de línea dobles en párrafos
+    text = text.replace(/\n\n/g, '</p><p>');
+    text = '<p>' + text + '</p>';
     
-    // Envolver listas en ul
-    formatted = formatted.replace(/(<li>.*<\/li>)/s, function(match) {
+    // Convertir listas con guiones
+    text = text.replace(/<p>[-•]\s*(.+?)<\/p>/g, '<li>$1</li>');
+    
+    // Envolver listas consecutivas en ul
+    text = text.replace(/(<li>.*?<\/li>)+/gs, function(match) {
         return '<ul>' + match + '</ul>';
     });
     
+    // Convertir listas numeradas
+    text = text.replace(/<p>(\d+)\.\s+(.+?)<\/p>/g, '<li value="$1">$2</li>');
+    
+    // Envolver listas numeradas en ol
+    text = text.replace(/(<li value="\d+">.*?<\/li>)+/gs, function(match) {
+        return '<ol>' + match.replace(/value="\d+"/g, '') + '</ol>';
+    });
+    
     // Convertir títulos (líneas que empiezan con #)
-    formatted = formatted.replace(/<p>###\s*(.+?)<\/p>/g, '<h4>$1</h4>');
-    formatted = formatted.replace(/<p>##\s*(.+?)<\/p>/g, '<h3>$1</h3>');
-    formatted = formatted.replace(/<p>#\s*(.+?)<\/p>/g, '<h2>$1</h2>');
+    text = text.replace(/<p>###\s*(.+?)<\/p>/g, '<h4>$1</h4>');
+    text = text.replace(/<p>##\s*(.+?)<\/p>/g, '<h3>$1</h3>');
+    text = text.replace(/<p>#\s*(.+?)<\/p>/g, '<h2>$1</h2>');
     
     // Limpiar párrafos vacíos
-    formatted = formatted.replace(/<p>\s*<\/p>/g, '');
+    text = text.replace(/<p>\s*<\/p>/g, '');
+    text = text.replace(/<p><\/p>/g, '');
     
-    return formatted;
+    return text;
 }
 
 // Utilidad: Validar que el texto sea apropiado para procesamiento
@@ -1032,7 +1043,12 @@ function setupAIAssistButtons() {
     document.getElementById('aiJustificationHelp').addEventListener('click', () => aiAssist('justification'));
     document.getElementById('aiObjectiveHelp').addEventListener('click', () => aiAssist('objective'));
     document.getElementById('aiSpecificObjectivesHelp').addEventListener('click', () => aiAssist('specificObjectives'));
+    document.getElementById('aiAuthorsHelp').addEventListener('click', () => aiAssist('authors'));
+    document.getElementById('aiConceptsHelp').addEventListener('click', () => aiAssist('concepts'));
+    document.getElementById('aiBackgroundHelp').addEventListener('click', () => aiAssist('background'));
+    document.getElementById('aiMethodologyHelp').addEventListener('click', () => aiAssist('methodology'));
     document.getElementById('aiStructureHelp').addEventListener('click', () => aiAssist('structure'));
+    document.getElementById('aiTimelineHelp').addEventListener('click', () => aiAssist('timeline'));
 }
 
 // Asistencia IA para el proyecto
@@ -1106,6 +1122,61 @@ Cada objetivo específico debe ser claro, concreto y comenzar con un verbo en in
             targetField = 'specificObjectives';
             break;
             
+        case 'authors':
+            if (!data.thesisTitle && !data.problemStatement) {
+                alert('Por favor, completá primero el título o el planteo del problema.');
+                return;
+            }
+            prompt = `Basándote en el siguiente tema de tesis, sugerí los 3-5 autores principales que sería relevante trabajar:
+
+Título: ${data.thesisTitle || 'No especificado'}
+Problema: ${data.problemStatement || 'No especificado'}
+
+Para cada autor, explicá brevemente por qué es relevante para esta investigación.`;
+            targetField = 'mainAuthors';
+            break;
+            
+        case 'concepts':
+            if (!data.thesisTitle && !data.problemStatement) {
+                alert('Por favor, completá primero el título o el planteo del problema.');
+                return;
+            }
+            prompt = `Basándote en el siguiente tema de tesis, identificá los 5-8 conceptos filosóficos clave que deberían trabajarse:
+
+Título: ${data.thesisTitle || 'No especificado'}
+Problema: ${data.problemStatement || 'No especificado'}
+
+Listá los conceptos con una breve definición o explicación de su relevancia.`;
+            targetField = 'keyConcepts';
+            break;
+            
+        case 'background':
+            if (!data.thesisTitle) {
+                alert('Por favor, completá primero el título de la tesis.');
+                return;
+            }
+            prompt = `Ayudame a redactar una descripción de los antecedentes teóricos (200-300 palabras) para una tesis sobre:
+
+${data.thesisTitle}
+
+Incluí el estado actual del debate, principales posiciones existentes y qué se ha dicho sobre el tema.`;
+            targetField = 'theoreticalBackground';
+            break;
+            
+        case 'methodology':
+            if (!data.problemStatement && !data.thesisTitle) {
+                alert('Por favor, completá primero el título o el planteo del problema.');
+                return;
+            }
+            prompt = `Ayudame a redactar la metodología (200-300 palabras) para la siguiente investigación filosófica:
+
+Título: ${data.thesisTitle || 'No especificado'}
+Problema: ${data.problemStatement || 'No especificado'}
+
+Explicá qué método filosófico es apropiado y cómo se abordará la investigación.`;
+            targetField = 'methodology';
+            break;
+            
         case 'structure':
             if (!data.specificObjectives) {
                 alert('Por favor, completá primero los objetivos específicos.');
@@ -1121,6 +1192,20 @@ ${data.specificObjectives}
 Proporcioná un índice claro y lógico.`;
             targetField = 'thesisStructure';
             break;
+            
+        case 'timeline':
+            if (!data.thesisStructure) {
+                alert('Por favor, completá primero la estructura tentativa para sugerir un cronograma apropiado.');
+                return;
+            }
+            prompt = `Basándote en la siguiente estructura de tesis, sugerí un cronograma de trabajo realista para 12 meses:
+
+Estructura:
+${data.thesisStructure}
+
+Distribuí el tiempo considerando: lectura de fuentes, escritura de capítulos, revisiones y correcciones finales.`;
+            targetField = 'timeline';
+            break;
     }
     
     // Llamar a la IA
@@ -1131,15 +1216,18 @@ Proporcioná un índice claro y lógico.`;
     
     try {
         const response = await callGeminiAPI(
-            'Sos un experto en metodología de tesis en filosofía. Ayudás a estudiantes a desarrollar sus proyectos de tesis. Usá el voseo argentino.',
+            'Sos un experto en metodología de tesis en filosofía. Ayudás a estudiantes a desarrollar sus proyectos de tesis. Usá el voseo argentino. NO uses formato markdown con asteriscos o guiones bajos, escribí el texto de forma natural sin marcas de formato.',
             [{ role: 'user', parts: [{ text: prompt }] }]
         );
         
+        // Limpiar formato markdown del texto
+        const cleanText = cleanMarkdown(response);
+        
         if (type === 'title') {
-            alert('Sugerencias de títulos:\n\n' + response);
+            alert('Sugerencias de títulos:\n\n' + cleanText);
         } else if (targetField) {
             if (confirm('¿Querés usar este contenido generado? Se copiará en el campo correspondiente.\n\nPodés revisarlo y modificarlo después.')) {
-                document.getElementById(targetField).value = response;
+                document.getElementById(targetField).value = cleanText;
             }
         }
         
@@ -1150,4 +1238,23 @@ Proporcioná un índice claro y lógico.`;
         button.disabled = false;
         button.textContent = originalText;
     }
+}
+
+// Función para limpiar formato markdown
+function cleanMarkdown(text) {
+    // Remover marcas de negrita
+    text = text.replace(/\*\*(.+?)\*\*/g, '$1');
+    text = text.replace(/__(.+?)__/g, '$1');
+    
+    // Remover marcas de cursiva
+    text = text.replace(/\*(.+?)\*/g, '$1');
+    text = text.replace(/_(.+?)_/g, '$1');
+    
+    // Remover marcas de código
+    text = text.replace(/`(.+?)`/g, '$1');
+    
+    // Remover encabezados markdown
+    text = text.replace(/^#{1,6}\s+/gm, '');
+    
+    return text;
 }
