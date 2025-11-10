@@ -1,6 +1,6 @@
 // Configuración de la API de Gemini
-const GEMINI_API_KEY = 'AIzaSyBrNHSnzrf79ZTEY_kdjDcNMVMwVFI79fI';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
+const GEMINI_API_KEY = 'AIzaSyAmPB4CPz_UDaPmP1417hRTmL4cuGRWTnw';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 // Sistema de prompts especializados
 const SYSTEM_PROMPTS = {
