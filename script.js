@@ -2,137 +2,247 @@
 const GEMINI_API_KEY = 'AIzaSyAmPB4CPz_UDaPmP1417hRTmL4cuGRWTnw';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
-// Sistema de prompts especializados
-const SYSTEM_PROMPTS = {
-    orientacion: `Sos un experto en metodología de investigación filosófica y dirección de tesis de licenciatura en filosofía. 
-Ayudás a estudiantes a:
-- Delimitar temas de investigación
-- Desarrollar preguntas filosóficas rigurosas
-- Estructurar marcos teóricos
-- Aplicar metodologías filosóficas apropiadas
-- Resolver dudas sobre el proceso de investigación
+// Palabra clave de verificación (aparecerá en todas las respuestas)
+const PALABRA_CLAVE = 'coyuntura';
 
-Proporcionás respuestas claras, académicas y orientadas a la práctica. Usás ejemplos cuando es apropiado y mantenés un tono profesional pero accesible. Usá el voseo argentino (vos en lugar de tú).`,
+// Sistema de prompts especializados - VERSIÓN ORIENTACIÓN DOCENTE
+const SYSTEM_PROMPTS = {
+    orientacion: `Sos un tutor académico especializado en metodología de investigación filosófica y dirección de tesis de licenciatura en filosofía. Tu rol es GUIAR al estudiante paso a paso, NO darle las respuestas directamente.
+
+ENFOQUE PEDAGÓGICO:
+- Siempre orientá al estudiante con preguntas reflexivas que lo ayuden a pensar por sí mismo
+- Proponé pasos concretos y secuenciales que pueda seguir
+- Cuando des ejemplos, explicá POR QUÉ funcionan
+- Animá al estudiante a desarrollar su propia voz académica
+- Si el estudiante pide que le escribas algo, primero guialo para que lo piense él mismo
+
+ESTRUCTURA DE TUS RESPUESTAS:
+1. Primero, validá lo que el estudiante ya sabe o propone
+2. Luego, hacé preguntas orientadoras que lo lleven a profundizar
+3. Después, ofrecé pasos concretos a seguir
+4. Finalmente, proponé un "siguiente paso" claro
+
+IMPORTANTE: En cada respuesta, mencioná naturalmente la palabra "coyuntura" (por ejemplo: "en esta coyuntura de tu investigación", "dada la coyuntura de tu avance", "en la coyuntura académica actual", etc.). Es fundamental que esta palabra aparezca en TODAS tus respuestas.
+
+Usá el voseo argentino (vos en lugar de tú). Mantené un tono cálido pero académico.`,
 
     generador: {
-        introduccion: `Sos un experto en redacción de tesis filosóficas. Generá una introducción académica que incluya:
-- Presentación clara del tema
-- Contextualización de la problemática
-- Justificación de la relevancia del estudio
-- Objetivos preliminares
-- Breve descripción de la estructura
+        introduccion: `Sos un tutor académico que guía a estudiantes en la redacción de tesis filosóficas. 
 
-Usá lenguaje académico formal, citas cuando sea pertinente, y mantené la coherencia argumentativa. Usá el voseo argentino.`,
+EN LUGAR DE ESCRIBIR LA INTRODUCCIÓN COMPLETA, vas a:
+1. Explicar qué elementos debe contener una buena introducción
+2. Proponer una estructura paso a paso para que el estudiante la desarrolle
+3. Dar ejemplos breves de cómo podría empezar cada sección
+4. Hacer preguntas que ayuden al estudiante a pensar su contenido específico
 
-        planteamiento: `Redactá un planteamiento del problema filosófico que:
-- Identifique claramente la cuestión filosófica
-- Muestre la relevancia teórica y/o práctica
-- Establezca los límites del problema
-- Formule la pregunta de investigación
-- Indique posibles hipótesis o líneas de respuesta
+PASOS QUE DEBÉS GUIAR:
+- Paso 1: Cómo presentar el tema (qué preguntas hacerse)
+- Paso 2: Cómo contextualizar (qué aspectos considerar)
+- Paso 3: Cómo justificar la relevancia (criterios a usar)
+- Paso 4: Cómo anticipar la estructura (esquema orientativo)
 
-Sé preciso, riguroso y usá terminología filosófica apropiada. Usá el voseo argentino.`,
+IMPORTANTE: Incluí naturalmente la palabra "coyuntura" en tu respuesta (ej: "en la coyuntura filosófica actual", "dada esta coyuntura investigativa").
 
-        justificacion: `Elaborá una justificación académica que explique:
-- La relevancia filosófica del tema
-- La pertinencia actual del problema
-- Las lagunas en la literatura existente
-- El aporte potencial de la investigación
-- La viabilidad del estudio
+Usá el voseo argentino.`,
 
-Argumentá de manera convincente pero equilibrada. Usá el voseo argentino.`,
+        planteamiento: `Sos un tutor académico que guía a estudiantes a formular problemas filosóficos.
 
-        objetivos: `Formulá objetivos de investigación (general y específicos) que sean:
-- Claros y precisos
-- Alcanzables en el marco de una tesis de licenciatura
-- Coherentes con el tema propuesto
-- Verificables o evaluables
-- Relevantes filosóficamente
+EN LUGAR DE REDACTAR EL PROBLEMA, vas a:
+1. Explicar qué hace a un problema filosófico bien planteado
+2. Proponer un proceso paso a paso para delimitarlo
+3. Ofrecer preguntas-guía que el estudiante debe responderse
+4. Mostrar ejemplos de cómo pasar de una intuición a un problema preciso
 
-Usá verbos de acción apropiados para investigación filosófica. Usá el voseo argentino.`,
+PROCESO DE GUÍA:
+- Paso 1: Identificar la intuición o inquietud inicial
+- Paso 2: Convertirla en pregunta (criterios de una buena pregunta filosófica)
+- Paso 3: Delimitar alcances (qué incluye y qué excluye)
+- Paso 4: Verificar que sea investigable (autoevaluación)
 
-        marco_teorico: `Desarrollá un marco teórico que:
-- Presente los conceptos fundamentales
-- Revise autores y corrientes relevantes
-- Establezca el posicionamiento teórico
-- Muestre el diálogo entre diferentes perspectivas
-- Fundamente teóricamente la investigación
+IMPORTANTE: Incluí naturalmente la palabra "coyuntura" en tu respuesta.
 
-Incluí referencias a autores clásicos y contemporáneos pertinentes. Usá el voseo argentino.`,
+Usá el voseo argentino.`,
 
-        estado_cuestion: `Elaborá un estado de la cuestión que:
-- Presente las principales posiciones sobre el tema
-- Analice los debates actuales
-- Identifique puntos de consenso y controversia
-- Muestre la evolución del pensamiento sobre el tema
-- Justifique la necesidad de tu investigación
+        justificacion: `Sos un tutor académico que orienta a estudiantes a justificar sus investigaciones.
 
-Demostrá conocimiento profundo de la bibliografía especializada. Usá el voseo argentino.`,
+EN LUGAR DE ESCRIBIR LA JUSTIFICACIÓN, vas a:
+1. Explicar los tipos de relevancia (teórica, práctica, académica)
+2. Guiar paso a paso cómo argumentar cada tipo
+3. Proponer preguntas que el estudiante debe hacerse
+4. Dar criterios para evaluar si la justificación es convincente
 
-        analisis: `Realizá un análisis filosófico que:
-- Examine críticamente los conceptos o argumentos
-- Identifique supuestos y consecuencias
-- Evalúe la coherencia lógica
-- Considere objeciones y contraargumentos
-- Desarrolle una interpretación fundamentada
+GUÍA PASO A PASO:
+- Paso 1: ¿Por qué este tema importa filosóficamente? (relevancia teórica)
+- Paso 2: ¿Qué vacío llena en la literatura? (aporte académico)
+- Paso 3: ¿Tiene implicancias prácticas? (relevancia social)
+- Paso 4: ¿Por qué ahora? (oportunidad de la investigación)
 
-Mantené rigor analítico y claridad argumentativa. Usá el voseo argentino.`,
+IMPORTANTE: Incluí naturalmente la palabra "coyuntura" en tu respuesta.
 
-        argumento: `Desarrollá un argumento filosófico que:
-- Presente premisas claras y explícitas
-- Siga una estructura lógica coherente
-- Anticipe y responda a objeciones
-- Fundamente cada afirmación
-- Llegue a conclusiones bien justificadas
+Usá el voseo argentino.`,
 
-Usá formato argumentativo riguroso y evitá falacias. Usá el voseo argentino.`,
+        objetivos: `Sos un tutor académico que guía a formular objetivos de investigación.
 
-        conclusion: `Redactá una conclusión que:
-- Sintetice los principales hallazgos
-- Responda a la pregunta de investigación
-- Muestre las aportaciones del trabajo
-- Reconozca limitaciones del estudio
-- Sugiera líneas futuras de investigación
+EN LUGAR DE FORMULAR LOS OBJETIVOS, vas a:
+1. Explicar la diferencia entre objetivo general y específicos
+2. Enseñar qué verbos usar y por qué
+3. Proponer un método para derivar objetivos de la pregunta de investigación
+4. Dar criterios de autoevaluación (SMART adaptado a filosofía)
 
-Cerrá el trabajo de manera coherente y satisfactoria. Usá el voseo argentino.`,
+GUÍA PASO A PASO:
+- Paso 1: Del problema al objetivo general (cómo transformarlo)
+- Paso 2: Selección del verbo adecuado (lista comentada)
+- Paso 3: Descomposición en objetivos específicos (criterio lógico)
+- Paso 4: Verificación de coherencia y alcanzabilidad
 
-        resumen: `Elaborá un resumen académico (abstract) que:
-- Presente el tema y problema en 1-2 frases
-- Indique la metodología empleada
-- Resuma los principales argumentos o hallazgos
-- Mencione las conclusiones principales
-- Se mantenga en 150-300 palabras
-- Sea comprensible para lectores no especializados en el tema específico
+IMPORTANTE: Incluí naturalmente la palabra "coyuntura" en tu respuesta.
 
-Usá lenguaje claro, preciso y académico. Usá el voseo argentino.`
+Usá el voseo argentino.`,
+
+        marco_teorico: `Sos un tutor académico que orienta la construcción de marcos teóricos.
+
+EN LUGAR DE DESARROLLAR EL MARCO, vas a:
+1. Explicar qué es y para qué sirve un marco teórico en filosofía
+2. Proponer una estrategia de lectura y fichaje
+3. Guiar cómo organizar los conceptos y autores
+4. Enseñar a establecer el posicionamiento teórico propio
+
+GUÍA PASO A PASO:
+- Paso 1: Identificar conceptos clave (método de selección)
+- Paso 2: Mapear autores relevantes (criterios de inclusión)
+- Paso 3: Organizar las relaciones entre conceptos (esquema visual sugerido)
+- Paso 4: Definir tu posición frente a las corrientes (preguntas orientadoras)
+
+IMPORTANTE: Incluí naturalmente la palabra "coyuntura" en tu respuesta.
+
+Usá el voseo argentino.`,
+
+        estado_cuestion: `Sos un tutor académico que guía a elaborar estados de la cuestión.
+
+EN LUGAR DE ESCRIBIR EL ESTADO DE LA CUESTIÓN, vas a:
+1. Explicar qué es y qué función cumple
+2. Enseñar estrategias de búsqueda bibliográfica
+3. Proponer cómo organizar la información encontrada
+4. Guiar cómo identificar vacíos y posicionarse
+
+GUÍA PASO A PASO:
+- Paso 1: Búsqueda sistemática (palabras clave, bases de datos)
+- Paso 2: Lectura estratégica (qué buscar en cada texto)
+- Paso 3: Organización por posiciones/debates (esquema)
+- Paso 4: Identificación del vacío que tu tesis llenará
+
+IMPORTANTE: Incluí naturalmente la palabra "coyuntura" en tu respuesta.
+
+Usá el voseo argentino.`,
+
+        analisis: `Sos un tutor académico que enseña a realizar análisis filosóficos.
+
+EN LUGAR DE HACER EL ANÁLISIS, vas a:
+1. Explicar qué significa analizar filosóficamente
+2. Proponer herramientas y métodos de análisis
+3. Guiar paso a paso cómo examinar un concepto o argumento
+4. Enseñar a identificar supuestos y consecuencias
+
+GUÍA PASO A PASO:
+- Paso 1: Descomponer el objeto de análisis (técnica)
+- Paso 2: Examinar cada componente (preguntas a hacer)
+- Paso 3: Buscar supuestos implícitos (método)
+- Paso 4: Evaluar coherencia y consecuencias (criterios)
+
+IMPORTANTE: Incluí naturalmente la palabra "coyuntura" en tu respuesta.
+
+Usá el voseo argentino.`,
+
+        argumento: `Sos un tutor académico que enseña a construir argumentos filosóficos.
+
+EN LUGAR DE DESARROLLAR EL ARGUMENTO, vas a:
+1. Explicar la estructura de un argumento válido
+2. Enseñar a identificar premisas y conclusiones
+3. Guiar cómo anticipar y responder objeciones
+4. Proponer ejercicios de verificación lógica
+
+GUÍA PASO A PASO:
+- Paso 1: Formular la tesis a defender (clarificación)
+- Paso 2: Identificar premisas necesarias (método)
+- Paso 3: Verificar validez lógica (herramientas)
+- Paso 4: Anticipar objeciones (técnica del abogado del diablo)
+
+IMPORTANTE: Incluí naturalmente la palabra "coyuntura" en tu respuesta.
+
+Usá el voseo argentino.`,
+
+        conclusion: `Sos un tutor académico que guía a redactar conclusiones.
+
+EN LUGAR DE ESCRIBIR LA CONCLUSIÓN, vas a:
+1. Explicar qué elementos debe tener una buena conclusión
+2. Proponer un método para sintetizar sin repetir
+3. Guiar cómo proyectar líneas futuras de investigación
+4. Enseñar a cerrar con fuerza argumentativa
+
+GUÍA PASO A PASO:
+- Paso 1: Revisar los hallazgos principales (técnica de síntesis)
+- Paso 2: Responder la pregunta de investigación (verificación)
+- Paso 3: Reconocer limitaciones honestamente (criterio)
+- Paso 4: Abrir nuevas preguntas (proyección)
+
+IMPORTANTE: Incluí naturalmente la palabra "coyuntura" en tu respuesta.
+
+Usá el voseo argentino.`,
+
+        resumen: `Sos un tutor académico que enseña a escribir abstracts.
+
+EN LUGAR DE ESCRIBIR EL RESUMEN, vas a:
+1. Explicar la estructura de un abstract académico
+2. Proponer un método de síntesis efectivo
+3. Dar criterios de extensión y claridad
+4. Enseñar a destacar lo esencial
+
+GUÍA PASO A PASO:
+- Paso 1: Identificar los 5 elementos clave (tema, problema, método, hallazgos, conclusión)
+- Paso 2: Reducir cada elemento a 1-2 oraciones (técnica)
+- Paso 3: Conectar los elementos fluidamente (transiciones)
+- Paso 4: Verificar autonomía y claridad (autoevaluación)
+
+IMPORTANTE: Incluí naturalmente la palabra "coyuntura" en tu respuesta.
+
+Usá el voseo argentino.`
     },
 
-    revisor: `Sos un revisor académico especializado en filosofía. Analizá el texto proporcionado considerando:
+    revisor: `Sos un tutor académico que enseña a revisar y mejorar textos filosóficos.
+
+EN LUGAR DE SOLO SEÑALAR ERRORES, vas a:
+1. Explicar los criterios de evaluación que estás usando
+2. Mostrar ejemplos de cómo mejorar cada aspecto
+3. Proponer ejercicios para que el estudiante practique
+4. Guiar una autorrevisión futura
+
+ESTRUCTURA DE TU RETROALIMENTACIÓN:
 
 ESTRUCTURA Y COHERENCIA:
-- Claridad en la exposición de ideas
-- Organización lógica del texto
-- Transiciones entre párrafos y secciones
-- Coherencia argumentativa
+- Qué buscar y por qué importa
+- Cómo detectar problemas
+- Estrategias de mejora paso a paso
 
 CALIDAD ARGUMENTATIVA:
-- Solidez de los argumentos
-- Fundamentación de afirmaciones
-- Tratamiento de objeciones
-- Rigor lógico
+- Criterios de evaluación
+- Preguntas de autoverificación
+- Técnicas de fortalecimiento
 
 ESTILO ACADÉMICO:
-- Uso apropiado de terminología filosófica
-- Claridad y precisión lingüística
-- Tono académico formal
-- Evitación de ambigüedades
+- Características del lenguaje filosófico
+- Errores comunes y cómo evitarlos
+- Ejercicios de mejora
 
-USO DE CITAS Y REFERENCIAS:
-- Incorporación apropiada de autores
-- Balance entre voz propia y citas
-- Diálogo con la literatura filosófica
+USO DE FUENTES:
+- Cómo integrar citas efectivamente
+- Balance entre voz propia y autoridades
+- Técnicas de parafraseo filosófico
 
-Proporcioná un análisis constructivo con sugerencias específicas de mejora. Usá el voseo argentino.`
+Proporcioná retroalimentación formativa que enseñe al estudiante a mejorar por sí mismo.
+
+IMPORTANTE: Incluí naturalmente la palabra "coyuntura" en tu respuesta (ej: "en esta coyuntura de tu escritura", "dada la coyuntura de tu texto").
+
+Usá el voseo argentino.`
 };
 
 // Estado de la aplicación
@@ -245,13 +355,16 @@ async function sendOrientationMessage() {
             conversationHistory.orientacion
         );
         
+        // Verificar que contenga la palabra clave, si no, agregarla
+        const responseConClave = asegurarPalabraClave(response);
+        
         // Agregar respuesta al historial y al chat
         conversationHistory.orientacion.push({
             role: 'model',
-            parts: [{ text: response }]
+            parts: [{ text: responseConClave }]
         });
         
-        addMessageToChat(chatBox, response, 'assistant');
+        addMessageToChat(chatBox, responseConClave, 'assistant');
         
     } catch (error) {
         console.error('Error:', error);
@@ -269,13 +382,22 @@ async function sendOrientationMessage() {
     }
 }
 
+// Función para asegurar que la palabra clave esté presente
+function asegurarPalabraClave(texto) {
+    if (!texto.toLowerCase().includes(PALABRA_CLAVE.toLowerCase())) {
+        // Si no está, agregar una frase al final
+        return texto + '\n\n[En esta coyuntura de tu proceso de investigación, recordá que cada paso que das te acerca a tu objetivo.]';
+    }
+    return texto;
+}
+
 function addMessageToChat(chatBox, message, sender) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `chat-message ${sender}`;
     
     const label = document.createElement('div');
     label.className = 'chat-message-label';
-    label.textContent = sender === 'user' ? 'Tú:' : 'Asistente:';
+    label.textContent = sender === 'user' ? 'Tú:' : 'Tutor:';
     
     const content = document.createElement('div');
     content.innerHTML = formatMessage(message);
@@ -329,12 +451,18 @@ async function generateContent() {
         const systemPrompt = SYSTEM_PROMPTS.generador[contentType];
         
         const userPrompt = `
-Tema de la tesis: ${topic}
+Tema de la tesis del estudiante: ${topic}
 
-${context ? `Contexto adicional:\n${context}\n` : ''}
+${context ? `Contexto adicional proporcionado:\n${context}\n` : ''}
 
-Por favor, generá un texto académico de alta calidad para la sección solicitada. 
-Debe ser riguroso, bien estructurado y apropiado para una tesis de licenciatura en filosofía.
+Por favor, GUIÁ al estudiante paso a paso para que pueda desarrollar esta sección por sí mismo. 
+NO escribas el contenido completo, sino que:
+1. Explicá qué debe contener esta sección
+2. Proponé pasos concretos a seguir
+3. Hacé preguntas reflexivas que orienten su pensamiento
+4. Ofrecé ejemplos breves solo como ilustración
+
+Recordá incluir la palabra "coyuntura" naturalmente en tu respuesta.
 `;
         
         // Llamar a la API
@@ -342,11 +470,14 @@ Debe ser riguroso, bien estructurado y apropiado para una tesis de licenciatura 
             { role: 'user', parts: [{ text: userPrompt }] }
         ]);
         
+        // Asegurar palabra clave
+        const responseConClave = asegurarPalabraClave(response);
+        
         // Mostrar resultado
         loading.style.display = 'none';
         outputBox.style.display = 'block';
         outputBox.classList.add('has-content');
-        outputBox.innerHTML = formatMessage(response);
+        outputBox.innerHTML = formatMessage(responseConClave);
         copyButton.style.display = 'inline-flex';
         
     } catch (error) {
@@ -399,810 +530,272 @@ async function reviewText() {
         return;
     }
     
-    // Obtener opciones seleccionadas
-    const checkStructure = document.getElementById('checkStructure').checked;
-    const checkArguments = document.getElementById('checkArguments').checked;
-    const checkStyle = document.getElementById('checkStyle').checked;
-    const checkCitations = document.getElementById('checkCitations').checked;
-    
-    // Construir instrucciones específicas
-    let specificInstructions = '\n\nAspecto a analizar:\n';
-    if (checkStructure) specificInstructions += '- Estructura y coherencia\n';
-    if (checkArguments) specificInstructions += '- Calidad argumentativa\n';
-    if (checkStyle) specificInstructions += '- Estilo académico\n';
-    if (checkCitations) specificInstructions += '- Uso de citas y referencias\n';
-    
     // Mostrar loading
     resultsBox.style.display = 'none';
     loading.style.display = 'block';
     reviewButton.disabled = true;
     
     try {
-        const prompt = `${SYSTEM_PROMPTS.revisor}${specificInstructions}
+        const userPrompt = `
+Texto del estudiante para revisar:
 
-TEXTO A REVISAR:
----
-${textToReview}
----
+"${textToReview}"
 
-Proporcioná un análisis detallado y constructivo, organizando tus observaciones por categorías. 
-Incluí ejemplos específicos del texto cuando sea pertinente.
-Finalizá con recomendaciones concretas de mejora.`;
+Por favor, proporcioná retroalimentación FORMATIVA que:
+1. Reconozca los aspectos positivos del texto
+2. Explique los criterios de evaluación que usás
+3. Guíe al estudiante sobre cómo mejorar cada aspecto
+4. Proponga ejercicios o pasos concretos de mejora
+5. Enseñe a autoevaluar textos similares en el futuro
+
+NO solo señales errores; ENSEÑÁ a mejorar.
+Recordá incluir la palabra "coyuntura" naturalmente en tu respuesta.
+`;
         
-        const response = await callGeminiAPI('', [
-            { role: 'user', parts: [{ text: prompt }] }
+        const response = await callGeminiAPI(SYSTEM_PROMPTS.revisor, [
+            { role: 'user', parts: [{ text: userPrompt }] }
         ]);
+        
+        // Asegurar palabra clave
+        const responseConClave = asegurarPalabraClave(response);
         
         // Mostrar resultados
         loading.style.display = 'none';
         resultsBox.style.display = 'block';
-        resultsBox.classList.add('has-content');
-        resultsBox.innerHTML = formatMessage(response);
+        resultsBox.innerHTML = formatMessage(responseConClave);
         
     } catch (error) {
         console.error('Error:', error);
         loading.style.display = 'none';
         resultsBox.style.display = 'block';
-        resultsBox.innerHTML = '<p class="placeholder-text" style="color: #e74c3c;">Error al analizar el texto. Por favor, intenta nuevamente.</p>';
+        resultsBox.innerHTML = '<p class="placeholder-text" style="color: #e74c3c;">Error al revisar el texto. Por favor, intenta nuevamente.</p>';
     } finally {
         reviewButton.disabled = false;
     }
 }
 
-// Función para llamar a la API de Gemini
-async function callGeminiAPI(systemPrompt, conversationHistory) {
-    try {
-        // Preparar el contenido con system prompt si existe
-        let contents = [];
-        
-        if (systemPrompt) {
-            contents.push({
-                role: 'user',
-                parts: [{ text: systemPrompt }]
-            });
-            contents.push({
-                role: 'model',
-                parts: [{ text: 'Entendido. Estoy listo para asistirte con expertise en filosofía y metodología de tesis. ¿En qué puedo ayudarte?' }]
-            });
+// Llamada a la API de Gemini
+async function callGeminiAPI(systemPrompt, messages) {
+    const requestBody = {
+        contents: messages,
+        systemInstruction: {
+            parts: [{ text: systemPrompt }]
+        },
+        generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 2048,
         }
-        
-        // Agregar el historial de conversación
-        contents = contents.concat(conversationHistory);
-        
-        const requestBody = {
-            contents: contents,
-            generationConfig: {
-                temperature: 0.7,
-                topK: 40,
-                topP: 0.95,
-                maxOutputTokens: 8192,
-            },
-            safetySettings: [
-                {
-                    category: "HARM_CATEGORY_HARASSMENT",
-                    threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                },
-                {
-                    category: "HARM_CATEGORY_HATE_SPEECH",
-                    threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                },
-                {
-                    category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                    threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                },
-                {
-                    category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                    threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                }
-            ]
-        };
-        
-        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody)
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error('API Error:', errorData);
-            throw new Error(`API Error: ${response.status} - ${JSON.stringify(errorData)}`);
-        }
-        
-        const data = await response.json();
-        
-        // Extraer el texto de la respuesta
-        if (data.candidates && data.candidates.length > 0) {
-            const candidate = data.candidates[0];
-            if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
-                return candidate.content.parts[0].text;
-            }
-        }
-        
-        throw new Error('No se pudo obtener una respuesta válida de la API');
-        
-    } catch (error) {
-        console.error('Error calling Gemini API:', error);
-        throw error;
+    };
+    
+    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+    });
+    
+    if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
     }
+    
+    const data = await response.json();
+    
+    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+        return data.candidates[0].content.parts[0].text;
+    }
+    
+    throw new Error('Respuesta inesperada de la API');
 }
 
-// Función para formatear mensajes (convertir markdown a HTML)
+// Formateador de mensajes
 function formatMessage(text) {
-    // Convertir negritas (debe ir antes que cursivas)
-    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    text = text.replace(/__(.+?)__/g, '<strong>$1</strong>');
+    // Convertir saltos de línea
+    let formatted = text.replace(/\n/g, '<br>');
     
-    // Convertir cursivas
-    text = text.replace(/\*([^*]+?)\*/g, '<em>$1</em>');
-    text = text.replace(/_([^_]+?)_/g, '<em>$1</em>');
+    // Convertir **texto** a negrita
+    formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     
-    // Convertir saltos de línea dobles en párrafos
-    text = text.replace(/\n\n/g, '</p><p>');
-    text = '<p>' + text + '</p>';
+    // Convertir *texto* a cursiva
+    formatted = formatted.replace(/\*(.+?)\*/g, '<em>$1</em>');
     
-    // Convertir listas con guiones
-    text = text.replace(/<p>[-•]\s*(.+?)<\/p>/g, '<li>$1</li>');
-    
-    // Envolver listas consecutivas en ul
-    text = text.replace(/(<li>.*?<\/li>)+/gs, function(match) {
-        return '<ul>' + match + '</ul>';
-    });
-    
-    // Convertir listas numeradas
-    text = text.replace(/<p>(\d+)\.\s+(.+?)<\/p>/g, '<li value="$1">$2</li>');
-    
-    // Envolver listas numeradas en ol
-    text = text.replace(/(<li value="\d+">.*?<\/li>)+/gs, function(match) {
-        return '<ol>' + match.replace(/value="\d+"/g, '') + '</ol>';
-    });
-    
-    // Convertir títulos (líneas que empiezan con #)
-    text = text.replace(/<p>###\s*(.+?)<\/p>/g, '<h4>$1</h4>');
-    text = text.replace(/<p>##\s*(.+?)<\/p>/g, '<h3>$1</h3>');
-    text = text.replace(/<p>#\s*(.+?)<\/p>/g, '<h2>$1</h2>');
-    
-    // Limpiar párrafos vacíos
-    text = text.replace(/<p>\s*<\/p>/g, '');
-    text = text.replace(/<p><\/p>/g, '');
-    
-    return text;
+    return formatted;
 }
 
-// Utilidad: Validar que el texto sea apropiado para procesamiento
-function validateTextLength(text, minLength = 10, maxLength = 50000) {
-    const length = text.trim().length;
-    return length >= minLength && length <= maxLength;
-}
-
-// Exportar funciones si se necesitan en otros módulos
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        callGeminiAPI,
-        formatMessage
-    };
-}
-
-// ========== FUNCIONALIDAD DEL PROYECTO DE TESIS ==========
-
+// Proyecto de Tesis
 function initializeProject() {
-    // Contadores de palabras
-    setupWordCounters();
+    // Cargar datos guardados
+    loadProjectData();
     
-    // Botones de ayuda
-    setupHelpButtons();
+    // Auto-guardar en cambios
+    const inputs = document.querySelectorAll('#proyecto input, #proyecto textarea, #proyecto select');
+    inputs.forEach(input => {
+        input.addEventListener('change', () => saveProjectData());
+        input.addEventListener('blur', () => saveProjectData());
+    });
     
-    // Botones de acciones
-    setupProjectActions();
+    // Botones de acción
+    document.getElementById('saveProject').addEventListener('click', () => {
+        saveProjectData();
+        showSaveConfirmation();
+    });
     
-    // Botones de IA
-    setupAIAssistButtons();
-}
-
-// Configurar contadores de palabras
-function setupWordCounters() {
-    const counters = [
-        { textarea: 'problemStatement', counter: 'problemCount' },
-        { textarea: 'justification', counter: 'justificationCount' },
-        { textarea: 'theoreticalBackground', counter: 'backgroundCount' },
-        { textarea: 'methodology', counter: 'methodologyCount' }
-    ];
-    
-    counters.forEach(({ textarea, counter }) => {
-        const element = document.getElementById(textarea);
-        const counterElement = document.getElementById(counter);
-        
-        if (element && counterElement) {
-            element.addEventListener('input', () => {
-                const wordCount = countWords(element.value);
-                counterElement.textContent = wordCount;
-            });
+    document.getElementById('clearProject').addEventListener('click', () => {
+        if (confirm('¿Estás seguro de que querés borrar todos los datos del proyecto? Esta acción no se puede deshacer.')) {
+            clearProjectData();
         }
     });
     
-    // Contadores de referencias bibliográficas
-    setupBibliographyCounters();
-}
-
-function setupBibliographyCounters() {
-    const primaryBib = document.getElementById('primaryBibliography');
-    const secondaryBib = document.getElementById('secondaryBibliography');
+    document.getElementById('exportProject').addEventListener('click', () => exportProject());
     
-    if (primaryBib && secondaryBib) {
-        primaryBib.addEventListener('input', updateBibliographyCount);
-        secondaryBib.addEventListener('input', updateBibliographyCount);
-        
-        // Botón de validación
-        document.getElementById('validateBibliography').addEventListener('click', validateBibliography);
-    }
-}
-
-function updateBibliographyCount() {
-    const primaryText = document.getElementById('primaryBibliography').value;
-    const secondaryText = document.getElementById('secondaryBibliography').value;
-    
-    const primaryCount = countReferences(primaryText);
-    const secondaryCount = countReferences(secondaryText);
-    const totalCount = primaryCount + secondaryCount;
-    
-    document.getElementById('primaryRefCount').textContent = primaryCount;
-    document.getElementById('secondaryRefCount').textContent = secondaryCount;
-    document.getElementById('totalRefs').textContent = totalCount;
-    
-    // Actualizar estilo si cumple el mínimo
-    const minRefsBox = document.getElementById('minRefsBox');
-    const statBoxes = document.querySelectorAll('.stat-box');
-    
-    if (totalCount >= 15) {
-        statBoxes.forEach(box => box.classList.add('complete'));
-    } else {
-        statBoxes.forEach(box => box.classList.remove('complete'));
-    }
-}
-
-function countReferences(text) {
-    if (!text.trim()) return 0;
-    
-    // Contar líneas no vacías que parecen referencias
-    const lines = text.split('\n').filter(line => {
-        const trimmed = line.trim();
-        // Una referencia típicamente tiene al menos un punto y paréntesis o tiene cierta longitud
-        return trimmed.length > 20 && (trimmed.includes('.') || trimmed.includes('('));
+    // Botones de ayuda con IA
+    document.querySelectorAll('.ai-help-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const helpType = e.target.getAttribute('data-help');
+            requestAIHelp(helpType, e);
+        });
     });
-    
-    return lines.length;
 }
 
-function countWords(text) {
-    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
-}
-
-// Configurar botones de ayuda
-function setupHelpButtons() {
-    const helpButtons = document.querySelectorAll('.help-btn');
-    const helpPanel = document.getElementById('helpPanel');
-    const closeHelp = document.querySelector('.close-help');
-    
-    const helpContent = {
-        titulo: {
-            title: 'Título de la Tesis',
-            text: `
-                <p><strong>Características de un buen título:</strong></p>
-                <ul>
-                    <li>Claro y específico</li>
-                    <li>Refleja el contenido real de tu investigación</li>
-                    <li>Incluye conceptos clave</li>
-                    <li>No demasiado largo (15-20 palabras máximo)</li>
-                    <li>Puede incluir subtítulo para mayor precisión</li>
-                </ul>
-                <p><strong>Ejemplo:</strong> "La libertad radical en Sartre: Un análisis desde El ser y la nada"</p>
-            `
-        },
-        area: {
-            title: 'Área Temática',
-            text: `
-                <p>Seleccioná el área principal de la filosofía en la que se inscribe tu investigación.</p>
-                <p><strong>Considerá:</strong></p>
-                <ul>
-                    <li>¿Cuál es el foco central de tu trabajo?</li>
-                    <li>¿Con qué tradición filosófica dialogás principalmente?</li>
-                    <li>Podés tener áreas secundarias, pero elegí la principal</li>
-                </ul>
-            `
-        },
-        problema: {
-            title: 'Planteo del Problema',
-            text: `
-                <p>El planteo del problema debe responder:</p>
-                <ul>
-                    <li>¿Qué cuestión filosófica querés investigar?</li>
-                    <li>¿Por qué es un problema relevante?</li>
-                    <li>¿Qué aspectos específicos del problema vas a abordar?</li>
-                    <li>¿Qué limitaciones tiene tu abordaje?</li>
-                </ul>
-                <p><strong>Tip:</strong> Sé específico. Evitá temas demasiado amplios.</p>
-            `
-        },
-        justificacion: {
-            title: 'Justificación',
-            text: `
-                <p>Explicá por qué vale la pena investigar tu tema:</p>
-                <ul>
-                    <li><strong>Relevancia teórica:</strong> ¿Qué aporta al debate filosófico?</li>
-                    <li><strong>Relevancia práctica:</strong> ¿Tiene implicaciones para la vida humana?</li>
-                    <li><strong>Originalidad:</strong> ¿Qué perspectiva nueva ofrecés?</li>
-                    <li><strong>Viabilidad:</strong> ¿Por qué es posible realizarla?</li>
-                </ul>
-            `
-        },
-        objetivos: {
-            title: 'Objetivos',
-            text: `
-                <p><strong>Objetivo General:</strong> Qué querés lograr con la investigación completa.</p>
-                <p><strong>Objetivos Específicos:</strong> Pasos concretos para lograr el objetivo general.</p>
-                <p><strong>Verbos útiles:</strong></p>
-                <ul>
-                    <li>Analizar, examinar, estudiar</li>
-                    <li>Identificar, caracterizar, describir</li>
-                    <li>Comparar, contrastar, relacionar</li>
-                    <li>Evaluar, criticar, cuestionar</li>
-                    <li>Interpretar, explicar, comprender</li>
-                </ul>
-            `
-        },
-        marco: {
-            title: 'Marco Teórico',
-            text: `
-                <p>El marco teórico preliminar debe incluir:</p>
-                <ul>
-                    <li><strong>Autores principales:</strong> Quiénes vas a estudiar directamente</li>
-                    <li><strong>Conceptos clave:</strong> Categorías filosóficas fundamentales</li>
-                    <li><strong>Antecedentes:</strong> Qué se ha dicho sobre tu tema</li>
-                </ul>
-                <p><strong>Nota:</strong> Es preliminar, puede modificarse durante la investigación.</p>
-            `
-        },
-        metodologia: {
-            title: 'Metodología',
-            text: `
-                <p><strong>Métodos filosóficos comunes:</strong></p>
-                <ul>
-                    <li><strong>Análisis conceptual:</strong> Clarificación de conceptos</li>
-                    <li><strong>Hermenéutica:</strong> Interpretación de textos</li>
-                    <li><strong>Método histórico-crítico:</strong> Análisis histórico y contextual</li>
-                    <li><strong>Análisis lógico:</strong> Evaluación de argumentos</li>
-                    <li><strong>Fenomenología:</strong> Descripción de experiencias</li>
-                </ul>
-                <p>Explicá cómo vas a trabajar tus fuentes y desarrollar tus argumentos.</p>
-            `
-        },
-        estructura: {
-            title: 'Estructura Tentativa',
-            text: `
-                <p>Proponé una estructura lógica con:</p>
-                <ul>
-                    <li><strong>Introducción:</strong> Presentación del tema</li>
-                    <li><strong>3-4 capítulos:</strong> Desarrollo argumentativo</li>
-                    <li><strong>Conclusión:</strong> Síntesis y cierre</li>
-                </ul>
-                <p><strong>Tip:</strong> Cada capítulo debe responder a un objetivo específico.</p>
-            `
-        },
-        cronograma: {
-            title: 'Cronograma',
-            text: `
-                <p>Distribuí el tiempo de trabajo considerando:</p>
-                <ul>
-                    <li>Lectura y análisis de fuentes (30%)</li>
-                    <li>Escritura de capítulos (50%)</li>
-                    <li>Revisión y correcciones (20%)</li>
-                </ul>
-                <p><strong>Realista:</strong> Considerá tus otras obligaciones.</p>
-            `
-        },
-        bibliografia: {
-            title: 'Bibliografía',
-            text: `
-                <p><strong>Requisitos:</strong></p>
-                <ul>
-                    <li>Mínimo 15 referencias en total</li>
-                    <li>Formato APA 7ª edición</li>
-                    <li>Dividir entre primarias y secundarias</li>
-                </ul>
-                <p><strong>Fuentes Primarias:</strong> Obras originales de los autores que vas a estudiar.</p>
-                <p><strong>Fuentes Secundarias:</strong> Comentarios, estudios críticos, análisis de otros académicos.</p>
-                <p><strong>Orden alfabético:</strong> Por apellido del primer autor.</p>
-                <p><strong>Tip:</strong> Usá gestores bibliográficos como Zotero para facilitar el formato.</p>
-            `
-        }
-    };
-    
-    helpButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const helpKey = button.getAttribute('data-help');
-            const content = helpContent[helpKey];
-            
-            if (content) {
-                document.getElementById('helpTitle').textContent = content.title;
-                document.getElementById('helpText').innerHTML = content.text;
-                helpPanel.classList.add('active');
+function loadProjectData() {
+    const savedData = localStorage.getItem('thesisProject');
+    if (savedData) {
+        const data = JSON.parse(savedData);
+        Object.keys(data).forEach(key => {
+            const element = document.getElementById(key);
+            if (element) {
+                element.value = data[key];
             }
         });
+    }
+}
+
+function saveProjectData() {
+    const data = {};
+    const inputs = document.querySelectorAll('#proyecto input, #proyecto textarea, #proyecto select');
+    inputs.forEach(input => {
+        if (input.id) {
+            data[input.id] = input.value;
+        }
+    });
+    localStorage.setItem('thesisProject', JSON.stringify(data));
+}
+
+function showSaveConfirmation() {
+    const btn = document.getElementById('saveProject');
+    const originalText = btn.textContent;
+    btn.textContent = '✓ Guardado';
+    btn.style.backgroundColor = '#27ae60';
+    setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.backgroundColor = '';
+    }, 2000);
+}
+
+function clearProjectData() {
+    localStorage.removeItem('thesisProject');
+    const inputs = document.querySelectorAll('#proyecto input, #proyecto textarea, #proyecto select');
+    inputs.forEach(input => {
+        if (input.type !== 'button') {
+            input.value = '';
+        }
+    });
+}
+
+function exportProject() {
+    const data = {};
+    const inputs = document.querySelectorAll('#proyecto input, #proyecto textarea, #proyecto select');
+    inputs.forEach(input => {
+        if (input.id && input.value) {
+            // Obtener la etiqueta del campo
+            const label = document.querySelector(`label[for="${input.id}"]`);
+            const fieldName = label ? label.textContent.replace(':', '') : input.id;
+            data[fieldName] = input.value;
+        }
     });
     
-    if (closeHelp) {
-        closeHelp.addEventListener('click', () => {
-            helpPanel.classList.remove('active');
-        });
-    }
-}
-
-// Configurar acciones del proyecto
-function setupProjectActions() {
-    document.getElementById('saveDraft').addEventListener('click', saveProjectDraft);
-    document.getElementById('saveDraftBottom').addEventListener('click', saveProjectDraft);
-    document.getElementById('loadDraft').addEventListener('click', loadProjectDraft);
-    document.getElementById('clearProject').addEventListener('click', clearProject);
-    document.getElementById('validateProject').addEventListener('click', validateProject);
-    document.getElementById('generateDocument').addEventListener('click', generateProjectDocument);
-    document.getElementById('generateDocumentBottom').addEventListener('click', generateProjectDocument);
-}
-
-// Guardar borrador
-function saveProjectDraft() {
-    const projectData = collectProjectData();
-    localStorage.setItem('projectDraft', JSON.stringify(projectData));
-    localStorage.setItem('projectDraftDate', new Date().toISOString());
+    // Crear documento de texto
+    let content = '=== PROYECTO DE TESIS ===\n\n';
+    content += `Fecha de exportación: ${new Date().toLocaleDateString('es-AR')}\n\n`;
     
-    alert('✓ Borrador guardado exitosamente');
-}
-
-// Cargar borrador
-function loadProjectDraft() {
-    const savedData = localStorage.getItem('projectDraft');
-    const savedDate = localStorage.getItem('projectDraftDate');
-    
-    if (!savedData) {
-        alert('No hay ningún borrador guardado.');
-        return;
-    }
-    
-    if (confirm(`¿Querés cargar el borrador guardado el ${new Date(savedDate).toLocaleString('es-AR')}? Esto reemplazará el contenido actual.`)) {
-        const projectData = JSON.parse(savedData);
-        fillProjectForm(projectData);
-        alert('✓ Borrador cargado exitosamente');
-    }
-}
-
-// Limpiar proyecto
-function clearProject() {
-    if (confirm('¿Estás seguro de que querés limpiar todo el formulario? Esta acción no se puede deshacer.')) {
-        document.querySelectorAll('.form-input, .form-textarea, .form-select').forEach(field => {
-            field.value = '';
-        });
-        alert('✓ Formulario limpiado');
-    }
-}
-
-// Recolectar datos del proyecto
-function collectProjectData() {
-    return {
-        studentName: document.getElementById('studentName').value,
-        studentEmail: document.getElementById('studentEmail').value,
-        thesisTitle: document.getElementById('thesisTitle').value,
-        thesisSubtitle: document.getElementById('thesisSubtitle').value,
-        thematicArea: document.getElementById('thematicArea').value,
-        philosophicalTradition: document.getElementById('philosophicalTradition').value,
-        problemStatement: document.getElementById('problemStatement').value,
-        researchQuestion: document.getElementById('researchQuestion').value,
-        secondaryQuestions: document.getElementById('secondaryQuestions').value,
-        justification: document.getElementById('justification').value,
-        generalObjective: document.getElementById('generalObjective').value,
-        specificObjectives: document.getElementById('specificObjectives').value,
-        mainAuthors: document.getElementById('mainAuthors').value,
-        keyConcepts: document.getElementById('keyConcepts').value,
-        theoreticalBackground: document.getElementById('theoreticalBackground').value,
-        methodology: document.getElementById('methodology').value,
-        primarySources: document.getElementById('primarySources').value,
-        secondarySources: document.getElementById('secondarySources').value,
-        thesisStructure: document.getElementById('thesisStructure').value,
-        timeline: document.getElementById('timeline').value,
-        primaryBibliography: document.getElementById('primaryBibliography').value,
-        secondaryBibliography: document.getElementById('secondaryBibliography').value
-    };
-}
-
-// Llenar formulario con datos
-function fillProjectForm(data) {
     Object.keys(data).forEach(key => {
-        const element = document.getElementById(key);
-        if (element) {
-            element.value = data[key] || '';
-        }
-    });
-}
-
-// Validar proyecto
-function validateProject() {
-    const requiredFields = [
-        { id: 'studentName', label: 'Nombre del estudiante' },
-        { id: 'thesisTitle', label: 'Título de la tesis' },
-        { id: 'thematicArea', label: 'Área temática' },
-        { id: 'problemStatement', label: 'Planteo del problema' },
-        { id: 'researchQuestion', label: 'Pregunta de investigación' },
-        { id: 'justification', label: 'Justificación' },
-        { id: 'generalObjective', label: 'Objetivo general' },
-        { id: 'specificObjectives', label: 'Objetivos específicos' },
-        { id: 'mainAuthors', label: 'Autores principales' },
-        { id: 'keyConcepts', label: 'Conceptos clave' },
-        { id: 'methodology', label: 'Metodología' },
-        { id: 'primarySources', label: 'Fuentes primarias' },
-        { id: 'thesisStructure', label: 'Estructura tentativa' },
-        { id: 'primaryBibliography', label: 'Bibliografía primaria' },
-        { id: 'secondaryBibliography', label: 'Bibliografía secundaria' }
-    ];
-    
-    const missing = [];
-    const warnings = [];
-    
-    // Verificar campos obligatorios
-    requiredFields.forEach(field => {
-        const element = document.getElementById(field.id);
-        if (!element.value.trim()) {
-            missing.push(field.label);
-        }
+        content += `--- ${key.toUpperCase()} ---\n`;
+        content += `${data[key]}\n\n`;
     });
     
-    // Verificar longitud de textos
-    const problemWords = countWords(document.getElementById('problemStatement').value);
-    if (problemWords < 300) {
-        warnings.push(`Planteo del problema muy corto (${problemWords} palabras, recomendado: 300-500)`);
-    }
-    
-    const justificationWords = countWords(document.getElementById('justification').value);
-    if (justificationWords < 200) {
-        warnings.push(`Justificación muy corta (${justificationWords} palabras, recomendado: 200-400)`);
-    }
-    
-    // Verificar bibliografía
-    const primaryRefs = countReferences(document.getElementById('primaryBibliography').value);
-    const secondaryRefs = countReferences(document.getElementById('secondaryBibliography').value);
-    const totalRefs = primaryRefs + secondaryRefs;
-    
-    if (totalRefs < 15) {
-        warnings.push(`Bibliografía insuficiente (${totalRefs} referencias, mínimo: 15)`);
-    }
-    
-    // Mostrar resultados
-    if (missing.length > 0) {
-        alert('❌ Faltan completar los siguientes campos obligatorios:\n\n' + missing.join('\n'));
-        return false;
-    }
-    
-    if (warnings.length > 0) {
-        alert('⚠️ Advertencias:\n\n' + warnings.join('\n') + '\n\nPodés continuar, pero considerá mejorar estos aspectos.');
-    } else {
-        alert('✓ ¡Proyecto validado exitosamente! Todos los campos están completos y cumplen los requisitos mínimos.');
-    }
-    
-    return true;
-}
-
-// Validar bibliografía específicamente
-function validateBibliography() {
-    const primaryRefs = countReferences(document.getElementById('primaryBibliography').value);
-    const secondaryRefs = countReferences(document.getElementById('secondaryBibliography').value);
-    const totalRefs = primaryRefs + secondaryRefs;
-    
-    let message = `📚 Análisis de Bibliografía:\n\n`;
-    message += `• Fuentes primarias: ${primaryRefs}\n`;
-    message += `• Fuentes secundarias: ${secondaryRefs}\n`;
-    message += `• Total: ${totalRefs} referencias\n\n`;
-    
-    if (totalRefs >= 15) {
-        message += `✓ Cumple con el mínimo de 15 referencias.\n\n`;
-        
-        if (primaryRefs < 2) {
-            message += `⚠️ Considerá agregar más fuentes primarias (obras originales).`;
-        } else if (secondaryRefs < 5) {
-            message += `⚠️ Considerá agregar más fuentes secundarias (comentadores, estudios).`;
-        } else {
-            message += `¡Excelente distribución entre fuentes primarias y secundarias!`;
-        }
-    } else {
-        message += `❌ No cumple con el mínimo. Faltan ${15 - totalRefs} referencias.\n\n`;
-        message += `Recomendación: Agregá más fuentes secundarias (comentadores, artículos de revista, estudios críticos).`;
-    }
-    
-    alert(message);
-}
-
-// Generar documento del proyecto
-async function generateProjectDocument() {
-    // Validar primero
-    const data = collectProjectData();
-    
-    if (!data.studentName || !data.thesisTitle) {
-        alert('Por favor, completá al menos el nombre y el título antes de generar el documento.');
-        return;
-    }
-    
-    // Crear contenido del documento
-    const documentContent = `
-PROYECTO DE TESIS DE LICENCIATURA EN FILOSOFÍA
-
-Universidad Católica de La Plata
-Seminario: Tesis de Investigación
-Prof. Francisco Fernández Ruiz
-
-═══════════════════════════════════════════════════════════════
-
-DATOS DEL ESTUDIANTE
-
-Nombre: ${data.studentName}
-Email: ${data.studentEmail || 'No especificado'}
-
-═══════════════════════════════════════════════════════════════
-
-TÍTULO DE LA TESIS
-
-${data.thesisTitle}
-${data.thesisSubtitle ? 'Subtítulo: ' + data.thesisSubtitle : ''}
-
-═══════════════════════════════════════════════════════════════
-
-ÁREA TEMÁTICA
-
-Área de la filosofía: ${data.thematicArea || 'No especificado'}
-Tradición filosófica: ${data.philosophicalTradition || 'No especificado'}
-
-═══════════════════════════════════════════════════════════════
-
-PLANTEO DEL PROBLEMA
-
-${data.problemStatement || 'No especificado'}
-
-Pregunta de investigación principal:
-${data.researchQuestion || 'No especificado'}
-
-${data.secondaryQuestions ? 'Preguntas secundarias:\n' + data.secondaryQuestions : ''}
-
-═══════════════════════════════════════════════════════════════
-
-JUSTIFICACIÓN
-
-${data.justification || 'No especificado'}
-
-═══════════════════════════════════════════════════════════════
-
-OBJETIVOS
-
-Objetivo General:
-${data.generalObjective || 'No especificado'}
-
-Objetivos Específicos:
-${data.specificObjectives || 'No especificado'}
-
-═══════════════════════════════════════════════════════════════
-
-MARCO TEÓRICO PRELIMINAR
-
-Autores principales:
-${data.mainAuthors || 'No especificado'}
-
-Conceptos filosóficos clave:
-${data.keyConcepts || 'No especificado'}
-
-Antecedentes teóricos:
-${data.theoreticalBackground || 'No especificado'}
-
-═══════════════════════════════════════════════════════════════
-
-METODOLOGÍA
-
-${data.methodology || 'No especificado'}
-
-Fuentes primarias principales:
-${data.primarySources || 'No especificado'}
-
-Fuentes secundarias:
-${data.secondarySources || 'No especificado'}
-
-═══════════════════════════════════════════════════════════════
-
-ESTRUCTURA TENTATIVA DE LA TESIS
-
-${data.thesisStructure || 'No especificado'}
-
-═══════════════════════════════════════════════════════════════
-
-CRONOGRAMA DE TRABAJO
-
-${data.timeline || 'No especificado'}
-
-═══════════════════════════════════════════════════════════════
-
-BIBLIOGRAFÍA PRELIMINAR
-
-Fuentes Primarias:
-${data.primaryBibliography || 'No especificado'}
-
-Fuentes Secundarias:
-${data.secondaryBibliography || 'No especificado'}
-
-═══════════════════════════════════════════════════════════════
-
-Fecha de generación: ${new Date().toLocaleDateString('es-AR', { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
-})}
-    `.trim();
-    
-    // Crear y descargar archivo
-    const blob = new Blob([documentContent], { type: 'text/plain;charset=utf-8' });
+    // Descargar archivo
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Proyecto_Tesis_${data.studentName.replace(/\s+/g, '_')}_${new Date().getTime()}.txt`;
+    a.download = `proyecto_tesis_${new Date().toISOString().split('T')[0]}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
-    alert('✓ Documento generado y descargado exitosamente');
 }
 
-// Configurar botones de asistencia IA
-function setupAIAssistButtons() {
-    document.getElementById('aiTitleSuggestion').addEventListener('click', () => aiAssist('title'));
-    document.getElementById('aiProblemHelp').addEventListener('click', () => aiAssist('problem'));
-    document.getElementById('aiJustificationHelp').addEventListener('click', () => aiAssist('justification'));
-    document.getElementById('aiObjectiveHelp').addEventListener('click', () => aiAssist('objective'));
-    document.getElementById('aiSpecificObjectivesHelp').addEventListener('click', () => aiAssist('specificObjectives'));
-    document.getElementById('aiAuthorsHelp').addEventListener('click', () => aiAssist('authors'));
-    document.getElementById('aiConceptsHelp').addEventListener('click', () => aiAssist('concepts'));
-    document.getElementById('aiBackgroundHelp').addEventListener('click', () => aiAssist('background'));
-    document.getElementById('aiMethodologyHelp').addEventListener('click', () => aiAssist('methodology'));
-    document.getElementById('aiStructureHelp').addEventListener('click', () => aiAssist('structure'));
-    document.getElementById('aiTimelineHelp').addEventListener('click', () => aiAssist('timeline'));
-    document.getElementById('aiPrimaryBibHelp').addEventListener('click', () => aiAssist('primaryBib'));
-    document.getElementById('aiSecondaryBibHelp').addEventListener('click', () => aiAssist('secondaryBib'));
-}
-
-// Asistencia IA para el proyecto
-async function aiAssist(type) {
-    const data = collectProjectData();
+// Función de ayuda con IA para el proyecto - VERSIÓN ORIENTACIÓN DOCENTE
+async function requestAIHelp(type, event) {
+    const data = JSON.parse(localStorage.getItem('thesisProject') || '{}');
     let prompt = '';
     let targetField = '';
     
     switch(type) {
         case 'title':
-            if (!data.problemStatement) {
-                alert('Por favor, completá primero el planteo del problema para que pueda sugerir títulos relevantes.');
+            if (!data.thematicArea && !data.mainAuthors) {
+                alert('Por favor, completá primero el área temática o los autores principales para poder orientarte mejor.');
                 return;
             }
-            prompt = `Basándote en el siguiente planteo del problema filosófico, sugerí 3 posibles títulos para una tesis de licenciatura en filosofía. Los títulos deben ser claros, académicos y específicos.
+            prompt = `Un estudiante está trabajando en una tesis con estas características:
+            
+Área temática: ${data.thematicArea || 'No especificada'}
+Autores: ${data.mainAuthors || 'No especificados'}
+Conceptos: ${data.keyConcepts || 'No especificados'}
 
-Planteo del problema:
-${data.problemStatement}
+EN LUGAR DE SUGERIR TÍTULOS DIRECTAMENTE, guiá al estudiante:
+1. Explicá qué elementos debe tener un buen título de tesis filosófica
+2. Proponé preguntas que lo ayuden a pensar su propio título
+3. Mostrá ejemplos de estructuras de títulos (no títulos completos)
+4. Ofrecé criterios para evaluar si un título es adecuado
 
-Proporcioná 3 opciones de títulos, cada uno en una línea nueva, precedido por un número.`;
+Recordá incluir la palabra "coyuntura" naturalmente.`;
+            break;
+            
+        case 'question':
+            if (!data.thematicArea) {
+                alert('Por favor, completá primero el área temática.');
+                return;
+            }
+            prompt = `Un estudiante trabaja en el área: ${data.thematicArea}
+Con estos autores/conceptos: ${data.mainAuthors || ''} ${data.keyConcepts || ''}
+
+EN LUGAR DE FORMULAR LA PREGUNTA, guiá al estudiante:
+1. Explicá qué caracteriza una buena pregunta de investigación filosófica
+2. Proponé un proceso paso a paso para formularla
+3. Ofrecé preguntas-guía que lo orienten
+4. Mostrá ejemplos de cómo transformar un interés vago en pregunta precisa
+
+Recordá incluir la palabra "coyuntura" naturalmente.`;
+            targetField = 'researchQuestion';
             break;
             
         case 'problem':
-            if (!data.thesisTitle && !data.researchQuestion) {
-                alert('Por favor, completá primero el título o la pregunta de investigación.');
+            if (!data.researchQuestion) {
+                alert('Por favor, completá primero la pregunta de investigación.');
                 return;
             }
-            prompt = `Ayudame a desarrollar el planteo del problema para una tesis de filosofía con la siguiente información:
+            prompt = `El estudiante tiene esta pregunta de investigación: ${data.researchQuestion}
 
-Título: ${data.thesisTitle || 'No especificado'}
-Pregunta de investigación: ${data.researchQuestion || 'No especificado'}
+EN LUGAR DE REDACTAR EL PLANTEO, guiá al estudiante:
+1. Explicá cómo pasar de la pregunta al planteo del problema
+2. Proponé una estructura paso a paso
+3. Indicá qué elementos debe incluir (contexto, relevancia, límites)
+4. Ofrecé preguntas orientadoras para cada elemento
 
-Proporcioná un planteo del problema bien estructurado de 300-400 palabras que explique la cuestión filosófica, su relevancia y delimitación.`;
+Recordá incluir la palabra "coyuntura" naturalmente.`;
             targetField = 'problemStatement';
             break;
             
@@ -1211,9 +804,15 @@ Proporcioná un planteo del problema bien estructurado de 300-400 palabras que e
                 alert('Por favor, completá primero el planteo del problema.');
                 return;
             }
-            prompt = `Basándote en el siguiente planteo del problema, ayudame a redactar una justificación académica (200-300 palabras) que explique la relevancia teórica y práctica de esta investigación:
+            prompt = `El estudiante planteó este problema: ${data.problemStatement}
 
-${data.problemStatement}`;
+EN LUGAR DE ESCRIBIR LA JUSTIFICACIÓN, guiá al estudiante:
+1. Explicá los tipos de relevancia (teórica, práctica, académica, social)
+2. Proponé preguntas para identificar cada tipo en su investigación
+3. Enseñá cómo argumentar la relevancia de manera convincente
+4. Ofrecé criterios para autoevaluar la justificación
+
+Recordá incluir la palabra "coyuntura" naturalmente.`;
             targetField = 'justification';
             break;
             
@@ -1222,11 +821,15 @@ ${data.problemStatement}`;
                 alert('Por favor, completá primero la pregunta de investigación.');
                 return;
             }
-            prompt = `Basándote en la siguiente pregunta de investigación, sugerí un objetivo general claro y alcanzable para una tesis de licenciatura:
+            prompt = `La pregunta de investigación del estudiante es: ${data.researchQuestion}
 
-${data.researchQuestion}
+EN LUGAR DE FORMULAR EL OBJETIVO, guiá al estudiante:
+1. Explicá cómo derivar el objetivo de la pregunta de investigación
+2. Enseñá qué verbos son apropiados y por qué (con lista comentada)
+3. Proponé un método paso a paso para redactarlo
+4. Ofrecé criterios de verificación (claridad, alcanzabilidad, relevancia)
 
-El objetivo debe comenzar con un verbo en infinitivo apropiado para investigación filosófica.`;
+Recordá incluir la palabra "coyuntura" naturalmente.`;
             targetField = 'generalObjective';
             break;
             
@@ -1235,11 +838,15 @@ El objetivo debe comenzar con un verbo en infinitivo apropiado para investigaci�
                 alert('Por favor, completá primero el objetivo general.');
                 return;
             }
-            prompt = `Basándote en el siguiente objetivo general, sugerí 4 objetivos específicos que permitan alcanzarlo:
+            prompt = `El objetivo general del estudiante es: ${data.generalObjective}
 
-Objetivo general: ${data.generalObjective}
+EN LUGAR DE FORMULAR LOS OBJETIVOS ESPECÍFICOS, guiá al estudiante:
+1. Explicá la relación entre objetivo general y específicos
+2. Enseñá criterios para descomponer el objetivo general
+3. Proponé preguntas que ayuden a identificar los pasos necesarios
+4. Ofrecé una técnica de verificación de coherencia
 
-Cada objetivo específico debe ser claro, concreto y comenzar con un verbo en infinitivo.`;
+Recordá incluir la palabra "coyuntura" naturalmente.`;
             targetField = 'specificObjectives';
             break;
             
@@ -1248,12 +855,19 @@ Cada objetivo específico debe ser claro, concreto y comenzar con un verbo en in
                 alert('Por favor, completá primero el título o el planteo del problema.');
                 return;
             }
-            prompt = `Basándote en el siguiente tema de tesis, sugerí los 3-5 autores principales que sería relevante trabajar:
-
+            prompt = `El estudiante trabaja sobre:
 Título: ${data.thesisTitle || 'No especificado'}
 Problema: ${data.problemStatement || 'No especificado'}
 
-Para cada autor, explicá brevemente por qué es relevante para esta investigación.`;
+EN LUGAR DE LISTAR AUTORES, guiá al estudiante:
+1. Explicá criterios para seleccionar autores relevantes
+2. Enseñá a distinguir fuentes primarias de secundarias
+3. Proponé una estrategia de búsqueda bibliográfica
+4. Ofrecé preguntas para evaluar la pertinencia de cada autor
+
+Si mencionás algunos autores como ejemplos, explicá por qué podrían ser relevantes y dejá que el estudiante investigue.
+
+Recordá incluir la palabra "coyuntura" naturalmente.`;
             targetField = 'mainAuthors';
             break;
             
@@ -1262,12 +876,17 @@ Para cada autor, explicá brevemente por qué es relevante para esta investigaci
                 alert('Por favor, completá primero el título o el planteo del problema.');
                 return;
             }
-            prompt = `Basándote en el siguiente tema de tesis, identificá los 5-8 conceptos filosóficos clave que deberían trabajarse:
-
+            prompt = `El estudiante investiga:
 Título: ${data.thesisTitle || 'No especificado'}
 Problema: ${data.problemStatement || 'No especificado'}
 
-Listá los conceptos con una breve definición o explicación de su relevancia.`;
+EN LUGAR DE LISTAR CONCEPTOS, guiá al estudiante:
+1. Explicá cómo identificar conceptos clave en una investigación
+2. Enseñá a distinguir conceptos centrales de periféricos
+3. Proponé un método para definir operativamente cada concepto
+4. Ofrecé preguntas que ayuden a delimitar el campo conceptual
+
+Recordá incluir la palabra "coyuntura" naturalmente.`;
             targetField = 'keyConcepts';
             break;
             
@@ -1276,11 +895,15 @@ Listá los conceptos con una breve definición o explicación de su relevancia.`
                 alert('Por favor, completá primero el título de la tesis.');
                 return;
             }
-            prompt = `Ayudame a redactar una descripción de los antecedentes teóricos (200-300 palabras) para una tesis sobre:
+            prompt = `El estudiante trabaja sobre: ${data.thesisTitle}
 
-${data.thesisTitle}
+EN LUGAR DE REDACTAR LOS ANTECEDENTES, guiá al estudiante:
+1. Explicá qué son los antecedentes teóricos y su función
+2. Enseñá estrategias de búsqueda de literatura
+3. Proponé un esquema para organizar la información encontrada
+4. Ofrecé criterios para seleccionar qué incluir y qué no
 
-Incluí el estado actual del debate, principales posiciones existentes y qué se ha dicho sobre el tema.`;
+Recordá incluir la palabra "coyuntura" naturalmente.`;
             targetField = 'theoreticalBackground';
             break;
             
@@ -1289,12 +912,17 @@ Incluí el estado actual del debate, principales posiciones existentes y qué se
                 alert('Por favor, completá primero el título o el planteo del problema.');
                 return;
             }
-            prompt = `Ayudame a redactar la metodología (200-300 palabras) para la siguiente investigación filosófica:
-
+            prompt = `El estudiante investiga:
 Título: ${data.thesisTitle || 'No especificado'}
 Problema: ${data.problemStatement || 'No especificado'}
 
-Explicá qué método filosófico es apropiado y cómo se abordará la investigación.`;
+EN LUGAR DE REDACTAR LA METODOLOGÍA, guiá al estudiante:
+1. Explicá qué métodos existen en filosofía (hermenéutico, analítico, dialéctico, fenomenológico, etc.)
+2. Proponé criterios para elegir el más adecuado según el problema
+3. Enseñá cómo justificar la elección metodológica
+4. Ofrecé preguntas para verificar la coherencia método-problema
+
+Recordá incluir la palabra "coyuntura" naturalmente.`;
             targetField = 'methodology';
             break;
             
@@ -1303,28 +931,34 @@ Explicá qué método filosófico es apropiado y cómo se abordará la investiga
                 alert('Por favor, completá primero los objetivos específicos.');
                 return;
             }
-            prompt = `Basándote en los siguientes objetivos, sugerí una estructura tentativa (índice) para la tesis con introducción, 3 capítulos con subsecciones, y conclusión:
+            prompt = `Los objetivos del estudiante son:
+General: ${data.generalObjective}
+Específicos: ${data.specificObjectives}
 
-Objetivo general: ${data.generalObjective}
+EN LUGAR DE PROPONER LA ESTRUCTURA, guiá al estudiante:
+1. Explicá el principio de correspondencia objetivos-capítulos
+2. Enseñá diferentes formas de organizar una tesis filosófica
+3. Proponé criterios para decidir la estructura más adecuada
+4. Ofrecé preguntas para verificar la coherencia estructural
 
-Objetivos específicos:
-${data.specificObjectives}
-
-Proporcioná un índice claro y lógico.`;
+Recordá incluir la palabra "coyuntura" naturalmente.`;
             targetField = 'thesisStructure';
             break;
             
         case 'timeline':
             if (!data.thesisStructure) {
-                alert('Por favor, completá primero la estructura tentativa para sugerir un cronograma apropiado.');
+                alert('Por favor, completá primero la estructura tentativa.');
                 return;
             }
-            prompt = `Basándote en la siguiente estructura de tesis, sugerí un cronograma de trabajo realista para 12 meses:
+            prompt = `La estructura de la tesis del estudiante es: ${data.thesisStructure}
 
-Estructura:
-${data.thesisStructure}
+EN LUGAR DE ARMAR EL CRONOGRAMA, guiá al estudiante:
+1. Explicá cómo estimar tiempos de lectura y escritura
+2. Enseñá a identificar tareas y dependencias
+3. Proponé criterios para distribuir el tiempo realistamente
+4. Ofrecé preguntas para verificar la factibilidad
 
-Distribuí el tiempo considerando: lectura de fuentes, escritura de capítulos, revisiones y correcciones finales.`;
+Recordá incluir la palabra "coyuntura" naturalmente.`;
             targetField = 'timeline';
             break;
             
@@ -1333,12 +967,18 @@ Distribuí el tiempo considerando: lectura de fuentes, escritura de capítulos, 
                 alert('Por favor, completá primero el título o los autores principales.');
                 return;
             }
-            prompt = `Sugerí 5-8 fuentes primarias (obras originales) en formato APA para una tesis sobre:
-
+            prompt = `El estudiante trabaja sobre:
 Título: ${data.thesisTitle || 'No especificado'}
-Autores principales: ${data.mainAuthors || 'No especificado'}
+Autores: ${data.mainAuthors || 'No especificados'}
 
-Incluí las obras más importantes y relevantes. Formato APA 7ª edición. NO uses asteriscos ni marcas de formato, solo texto limpio.`;
+EN LUGAR DE LISTAR BIBLIOGRAFÍA, guiá al estudiante:
+1. Explicá qué son las fuentes primarias en filosofía
+2. Enseñá cómo identificar las obras fundamentales de un autor
+3. Proponé estrategias de búsqueda (catálogos, repositorios)
+4. Ofrecé criterios para seleccionar ediciones apropiadas
+5. Enseñá el formato APA 7 para citar estas obras
+
+Recordá incluir la palabra "coyuntura" naturalmente.`;
             targetField = 'primaryBibliography';
             break;
             
@@ -1347,13 +987,19 @@ Incluí las obras más importantes y relevantes. Formato APA 7ª edición. NO us
                 alert('Por favor, completá primero el título o los autores principales.');
                 return;
             }
-            prompt = `Sugerí 10-12 fuentes secundarias (comentadores, estudios críticos, artículos académicos) en formato APA para una tesis sobre:
-
+            prompt = `El estudiante trabaja sobre:
 Título: ${data.thesisTitle || 'No especificado'}
-Autores principales: ${data.mainAuthors || 'No especificado'}
-Área: ${data.thematicArea || 'No especificado'}
+Autores: ${data.mainAuthors || 'No especificados'}
+Área: ${data.thematicArea || 'No especificada'}
 
-Incluí libros de comentadores reconocidos y artículos de revistas académicas. Formato APA 7ª edición. NO uses asteriscos ni marcas de formato, solo texto limpio.`;
+EN LUGAR DE LISTAR BIBLIOGRAFÍA SECUNDARIA, guiá al estudiante:
+1. Explicá qué son las fuentes secundarias y su función
+2. Enseñá estrategias de búsqueda en bases de datos académicas
+3. Proponé criterios para evaluar la calidad de los comentadores
+4. Ofrecé indicaciones para buscar en revistas especializadas
+5. Enseñá el formato APA 7 para diferentes tipos de fuentes
+
+Recordá incluir la palabra "coyuntura" naturalmente.`;
             targetField = 'secondaryBibliography';
             break;
     }
@@ -1362,28 +1008,31 @@ Incluí libros de comentadores reconocidos y artículos de revistas académicas.
     const button = event.target;
     const originalText = button.textContent;
     button.disabled = true;
-    button.textContent = '⏳ Generando...';
+    button.textContent = '⏳ Generando orientación...';
     
     try {
         const response = await callGeminiAPI(
-            'Sos un experto en metodología de tesis en filosofía. Ayudás a estudiantes a desarrollar sus proyectos de tesis. Usá el voseo argentino. NO uses formato markdown con asteriscos o guiones bajos, escribí el texto de forma natural sin marcas de formato.',
+            'Sos un tutor académico experto en metodología de tesis en filosofía. Tu rol es GUIAR al estudiante paso a paso, NO darle las respuestas directamente. Usá el voseo argentino. NO uses formato markdown con asteriscos o guiones bajos, escribí el texto de forma natural sin marcas de formato. SIEMPRE incluí la palabra "coyuntura" naturalmente en tu respuesta.',
             [{ role: 'user', parts: [{ text: prompt }] }]
         );
         
-        // Limpiar formato markdown del texto
-        const cleanText = cleanMarkdown(response);
+        // Limpiar formato markdown y asegurar palabra clave
+        let cleanText = cleanMarkdown(response);
+        cleanText = asegurarPalabraClave(cleanText);
         
         if (type === 'title') {
-            alert('Sugerencias de títulos:\n\n' + cleanText);
+            alert('Orientación para formular tu título:\n\n' + cleanText);
         } else if (targetField) {
-            if (confirm('¿Querés usar este contenido generado? Se copiará en el campo correspondiente.\n\nPodés revisarlo y modificarlo después.')) {
+            // Mostrar la orientación en un modal o alert más elaborado
+            const modalContent = `ORIENTACIÓN DEL TUTOR\n\n${cleanText}\n\n¿Querés que se copie esta orientación al campo correspondiente para tenerla como referencia?`;
+            if (confirm(modalContent)) {
                 document.getElementById(targetField).value = cleanText;
             }
         }
         
     } catch (error) {
         console.error('Error:', error);
-        alert('Error al generar contenido con IA. Por favor, intentá nuevamente.');
+        alert('Error al generar la orientación. Por favor, intentá nuevamente.');
     } finally {
         button.disabled = false;
         button.textContent = originalText;
