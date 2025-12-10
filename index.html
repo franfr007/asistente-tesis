@@ -3,8 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tutor de Tesis - Licenciatura en Filosofía</title>
+    <title>Asistente de Tesis - Licenciatura en Filosofía</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Estilos para Modal de API Key */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        
+        .api-key-modal {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .api-key-modal h3 {
+            margin-top: 0;
+            color: #1a365d;
+            font-size: 1.4rem;
+        }
+        
+        .api-key-steps {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        .api-key-steps ol {
+            margin: 0.5rem 0 0 1.2rem;
+            padding: 0;
+        }
+        
+        .api-key-steps li {
+            margin: 0.4rem 0;
+        }
+        
+        .api-key-steps a {
+            color: #2563eb;
+            font-weight: 600;
+        }
+        
+        .api-key-input-group {
+            margin: 1.5rem 0;
+        }
+        
+        .api-key-input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .api-key-input-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: monospace;
+            box-sizing: border-box;
+        }
+        
+        .api-key-input-group input:focus {
+            border-color: #2563eb;
+            outline: none;
+        }
+        
+        .api-key-input-group small {
+            display: block;
+            margin-top: 0.5rem;
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+        
+        .modal-buttons .btn-primary {
+            background: #1a365d;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .modal-buttons .btn-primary:hover {
+            background: #2d4a7c;
+        }
+        
+        .modal-buttons .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .modal-buttons .btn-secondary:hover {
+            background: #d1d5db;
+        }
+        
+        /* Estado de API Key */
+        .api-status {
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+        
+        .api-status.configured {
+            color: #059669;
+        }
+        
+        .api-status.not-configured {
+            color: #dc2626;
+        }
+        
+        .btn-link {
+            background: none;
+            border: none;
+            color: #2563eb;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: inherit;
+            padding: 0;
+            margin-left: 0.5rem;
+        }
+        
+        .btn-link:hover {
+            color: #1d4ed8;
+        }
+        
+        /* Modal de Tutor */
+        .tutor-modal {
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .tutor-modal h3 {
+            color: #1a365d;
+            margin-top: 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .tutor-content {
+            margin: 1rem 0;
+            line-height: 1.7;
+            color: #374151;
+        }
+        
+        .tutor-content p {
+            margin-bottom: 1rem;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -14,7 +185,7 @@
                 <div class="logo-section">
                     <img src="logo-ucalp.png" alt="Universidad Católica de La Plata" class="university-logo">
                     <div class="title-section">
-                        <h1>Tutor de Tesis Filosófica</h1>
+                        <h1>Asistente de Tesis Filosófica</h1>
                         <p class="subtitle">Universidad Católica de La Plata - Licenciatura en Filosofía</p>
                     </div>
                 </div>
@@ -35,7 +206,7 @@
             <!-- Tab: Inicio -->
             <div id="inicio" class="tab-content active">
                 <div class="welcome-section">
-                    <h2>Bienvenido al Tutor de Tesis en Filosofía</h2>
+                    <h2>Bienvenido al Asistente de Tesis en Filosofía</h2>
                     <p class="intro">Esta plataforma ha sido diseñada especialmente para estudiantes de la Licenciatura en Filosofía de la Universidad Católica de La Plata. Te guiará en cada etapa de tu trabajo de tesis, desde la conceptualización hasta la redacción final.</p>
                     
                     <div class="features-grid">
@@ -46,13 +217,13 @@
                         </div>
                         <div class="feature-card">
                             <span class="feature-icon">✍️</span>
-                            <h3>Guía de Redacción</h3>
-                            <p>Recibí orientación paso a paso para desarrollar tus propios argumentos y análisis filosóficos</p>
+                            <h3>Generación de Contenido</h3>
+                            <p>Crea borradores, argumentos y análisis con asistencia de IA especializada en filosofía</p>
                         </div>
                         <div class="feature-card">
                             <span class="feature-icon">🔍</span>
-                            <h3>Retroalimentación Formativa</h3>
-                            <p>Recibí orientación sobre cómo mejorar tu trabajo y aprendé a autoevaluar tus textos</p>
+                            <h3>Revisión Académica</h3>
+                            <p>Analiza tu trabajo y recibe sugerencias de mejora según estándares académicos</p>
                         </div>
                         <div class="feature-card">
                             <span class="feature-icon">📖</span>
@@ -66,7 +237,7 @@
                         <ol class="steps-list">
                             <li><strong>Definí tu tema:</strong> Usá la sección de Orientación para delimitar tu objeto de estudio</li>
                             <li><strong>Estructurá tu trabajo:</strong> Revisá los lineamientos formales de la tesis</li>
-                            <li><strong>Desarrollá tu contenido:</strong> Seguí las guías paso a paso del tutor IA para redactar cada sección</li>
+                            <li><strong>Desarrollá tu contenido:</strong> Utilizá el generador IA para crear borradores</li>
                             <li><strong>Revisá y mejorá:</strong> Analizá tu trabajo con el revisor académico</li>
                         </ol>
                     </div>
@@ -79,8 +250,8 @@
                 
                 <div class="orientation-container">
                     <div class="chat-section">
-                        <h3>Consultá con el Tutor Filosófico</h3>
-                        <p class="helper-text">El tutor te guiará paso a paso con preguntas orientadoras para que desarrolles tu propia investigación filosófica</p>
+                        <h3>Consultá con el Asistente Filosófico</h3>
+                        <p class="helper-text">Hacé preguntas sobre metodología, estructura, o aspectos específicos de tu investigación filosófica</p>
                         
                         <div id="chatOrientation" class="chat-box"></div>
                         
@@ -88,7 +259,7 @@
                             <textarea 
                                 id="orientationInput" 
                                 class="chat-input" 
-                                placeholder="Ejemplo: ¿Cómo puedo delimitar mejor mi tema de investigación sobre la ética kantiana?"
+                                placeholder="Ejemplo: ¿Cómo debo estructurar el marco teórico para una tesis sobre la ética kantiana?"
                                 rows="3"
                             ></textarea>
                             <button id="sendOrientation" class="btn btn-primary">Enviar Consulta</button>
@@ -912,10 +1083,40 @@ García, E. (2018). Libertad y angustia en el existencialismo de Sartre. Revista
 
         <!-- Footer -->
         <footer class="footer">
+            <div id="apiKeyStatus" class="api-status"></div>
             <p><strong>Seminario: Tesis de Investigación</strong></p>
             <p>Prof. Francisco Fernández Ruiz - Universidad Católica de La Plata</p>
-            <p class="disclaimer">Herramienta de apoyo académico para estudiantes de Licenciatura en Filosofía. Las orientaciones de la IA son guías para que el estudiante desarrolle su propio trabajo bajo supervisión del director de tesis. El contenido final es responsabilidad del estudiante.</p>
+            <p class="disclaimer">Herramienta de apoyo académico para estudiantes de Licenciatura en Filosofía. El contenido generado por IA debe ser revisado y adaptado por el estudiante bajo supervisión del director de tesis.</p>
         </footer>
+    </div>
+
+    <!-- Modal de configuración de API Key -->
+    <div id="apiKeyModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content api-key-modal">
+            <h3>🔑 Configurar API Key de Groq</h3>
+            <p>Para usar el asistente de IA, necesitás una API key gratuita de Groq.</p>
+            
+            <div class="api-key-steps">
+                <p><strong>¿Cómo obtenerla?</strong></p>
+                <ol>
+                    <li>Ingresá a <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a></li>
+                    <li>Creá una cuenta gratuita (o iniciá sesión)</li>
+                    <li>Hacé clic en "Create API Key"</li>
+                    <li>Copiá la key y pegala abajo</li>
+                </ol>
+            </div>
+            
+            <div class="api-key-input-group">
+                <label for="apiKeyInput">Tu API Key:</label>
+                <input type="password" id="apiKeyInput" placeholder="gsk_xxxxxxxxxxxxxxxx" autocomplete="off">
+                <small>La key se guarda localmente en tu navegador. No se comparte con nadie.</small>
+            </div>
+            
+            <div class="modal-buttons">
+                <button id="saveApiKeyBtn" class="btn-primary">Guardar</button>
+                <button id="cancelApiKeyBtn" class="btn-secondary">Cancelar</button>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
